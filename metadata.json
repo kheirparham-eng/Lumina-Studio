@@ -1,6 +1,6 @@
 {
-  "name": "Lightroom Studio",
-  "description": "Professional browser-based non-destructive photo editor with WebGL acceleration, HSL mixer, color grading, curves, presets, and export capabilities.",
+  "name": "Lumina Studio",
+  "description": "Professional WebGL GPU-accelerated non-destructive photo editing suite with RGB Curves, Selective Masking, HSL Color Mixer, Pro Presets, and Gemini AI Auto-Enhance.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
