@@ -64,7 +64,9 @@ uniform float u_grainSize;    // 1 to 5
 uniform float u_grainRoughness; // 0 to 100
 uniform float u_chromaticAberration; // 0 to 100
 uniform float u_sharpening;   // 0 to 100
-uniform float u_noiseReduction; // 0 to 100
+uniform float u_noiseReduction; // 0 to 100 (AI High-ISO Luminance Denoise)
+uniform float u_colorNoiseReduction; // 0 to 100 (Chroma Sensor Denoise)
+uniform float u_noiseDetail;    // 0 to 100 (Edge/Detail Retention)
 
 // Selective Masking Uniforms
 uniform float u_maskType;       // 0 = none, 1 = radial, 2 = linear
@@ -185,29 +187,112 @@ void main() {
     }
     vec3 color = texColor.rgb;
 
-    // 0. Noise Reduction (Edge-Preserving Spatial Filter)
-    if (u_noiseReduction > 0.0) {
-        float nrAmount = u_noiseReduction / 100.0;
+    // 0. AI-Powered High-ISO Noise Reduction (Multi-Tap Edge-Preserving Cross-Bilateral Kernel Filter)
+    if (u_noiseReduction > 0.0 || u_colorNoiseReduction > 0.0) {
+        float lumaNR = clamp(u_noiseReduction / 100.0, 0.0, 1.0);
+        float chromaNR = clamp(u_colorNoiseReduction / 100.0, 0.0, 1.0);
+        float detailRetention = clamp(u_noiseDetail / 100.0, 0.0, 1.0);
+
         vec3 centerCol = color;
-        vec3 sumCol = centerCol;
-        float totalW = 1.0;
+        float centerLum = dot(centerCol, vec3(0.299, 0.587, 0.114));
 
-        vec2 nOffsets[4];
-        nOffsets[0] = vec2(texel.x, 0.0);
-        nOffsets[1] = vec2(-texel.x, 0.0);
-        nOffsets[2] = vec2(0.0, texel.y);
-        nOffsets[3] = vec2(0.0, -texel.y);
+        // Spatial step scale increases smoothly for higher ISO noise to cover wider grain clusters
+        float stepMult = 1.0 + max(lumaNR, chromaNR) * 1.25;
+        vec2 stepSize = texel * stepMult;
 
-        for (int i = 0; i < 4; i++) {
-            vec2 nCoord = clamp(tc + nOffsets[i], 0.0, 1.0);
-            vec3 nCol = texture2D(u_image, nCoord).rgb;
-            float diff = length(nCol - centerCol);
-            float w = exp(-diff * diff * 25.0);
-            sumCol += nCol * w;
-            totalW += w;
+        // Bilateral range sensitivity: higher detail retention = sharper edge boundary preservation
+        float edgeSensitivity = mix(15.0, 85.0, detailRetention);
+        float chromaEdgeSensitivity = mix(8.0, 35.0, detailRetention);
+
+        vec3 lumaSum = centerCol;
+        float lumaWeightSum = 1.0;
+
+        vec3 chromaSum = centerCol;
+        float chromaWeightSum = 1.0;
+
+        // 8-Tap Primary Cross & Diagonal Kernel
+        vec2 kOffsets[8];
+        kOffsets[0] = vec2( 1.0,  0.0);
+        kOffsets[1] = vec2(-1.0,  0.0);
+        kOffsets[2] = vec2( 0.0,  1.0);
+        kOffsets[3] = vec2( 0.0, -1.0);
+        kOffsets[4] = vec2( 1.0,  1.0);
+        kOffsets[5] = vec2(-1.0,  1.0);
+        kOffsets[6] = vec2( 1.0, -1.0);
+        kOffsets[7] = vec2(-1.0, -1.0);
+
+        // Spatial Gaussian weights
+        float spatialW[8];
+        spatialW[0] = 0.20;
+        spatialW[1] = 0.20;
+        spatialW[2] = 0.20;
+        spatialW[3] = 0.20;
+        spatialW[4] = 0.12;
+        spatialW[5] = 0.12;
+        spatialW[6] = 0.12;
+        spatialW[7] = 0.12;
+
+        for (int i = 0; i < 8; i++) {
+            vec2 sampleCoord = clamp(tc + kOffsets[i] * stepSize, 0.0, 1.0);
+            vec3 sampleCol = texture2D(u_image, sampleCoord).rgb;
+            float sampleLum = dot(sampleCol, vec3(0.299, 0.587, 0.114));
+
+            // Photometric range weight for luminance
+            float lumDelta = sampleLum - centerLum;
+            float colorDelta = length(sampleCol - centerCol);
+
+            float rangeW = exp(-lumDelta * lumDelta * edgeSensitivity);
+            float wLuma = spatialW[i] * rangeW;
+            lumaSum += sampleCol * wLuma;
+            lumaWeightSum += wLuma;
+
+            // Chromatic blotch range weight (softer threshold to remove color speckles)
+            float wChroma = spatialW[i] * exp(-colorDelta * colorDelta * chromaEdgeSensitivity);
+            chromaSum += sampleCol * wChroma;
+            chromaWeightSum += wChroma;
         }
-        vec3 smoothed = sumCol / totalW;
-        color = mix(color, smoothed, nrAmount * 0.85);
+
+        // Extended 4-Tap Outer Radius for Aggressive High-ISO Denoising
+        if (lumaNR > 0.4 || chromaNR > 0.4) {
+            vec2 extOffsets[4];
+            extOffsets[0] = vec2( 2.0,  0.0);
+            extOffsets[1] = vec2(-2.0,  0.0);
+            extOffsets[2] = vec2( 0.0,  2.0);
+            extOffsets[3] = vec2( 0.0, -2.0);
+
+            for (int j = 0; j < 4; j++) {
+                vec2 sampleCoord = clamp(tc + extOffsets[j] * stepSize, 0.0, 1.0);
+                vec3 sampleCol = texture2D(u_image, sampleCoord).rgb;
+                float sampleLum = dot(sampleCol, vec3(0.299, 0.587, 0.114));
+
+                float lumDelta = sampleLum - centerLum;
+                float colorDelta = length(sampleCol - centerCol);
+
+                float rangeW = exp(-lumDelta * lumDelta * edgeSensitivity * 1.2);
+                float wLuma = 0.08 * rangeW;
+                lumaSum += sampleCol * wLuma;
+                lumaWeightSum += wLuma;
+
+                float wChroma = 0.08 * exp(-colorDelta * colorDelta * chromaEdgeSensitivity);
+                chromaSum += sampleCol * wChroma;
+                chromaWeightSum += wChroma;
+            }
+        }
+
+        vec3 denoisedLuma = lumaSum / max(0.0001, lumaWeightSum);
+        vec3 denoisedChroma = chromaSum / max(0.0001, chromaWeightSum);
+
+        // Separate and reassemble Luminance & Chrominance
+        vec3 lumaBlended = mix(color, denoisedLuma, lumaNR * 0.92);
+        if (chromaNR > 0.0) {
+            float curLuma = dot(lumaBlended, vec3(0.299, 0.587, 0.114));
+            vec3 chromaVec = denoisedChroma - vec3(dot(denoisedChroma, vec3(0.299, 0.587, 0.114)));
+            vec3 origChroma = lumaBlended - vec3(curLuma);
+            vec3 smoothedChroma = mix(origChroma, chromaVec, chromaNR * 0.95);
+            color = clamp(vec3(curLuma) + smoothedChroma, 0.0, 1.0);
+        } else {
+            color = clamp(lumaBlended, 0.0, 1.0);
+        }
     }
 
     // 1. White Balance (Temp & Tint)

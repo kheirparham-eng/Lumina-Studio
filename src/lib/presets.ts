@@ -89,6 +89,8 @@ export const createDefaultAdjustments = (): PhotoAdjustments => ({
   vignetteMidpoint: 50,
   sharpening: 15,
   noiseReduction: 0,
+  colorNoiseReduction: 0,
+  noiseDetail: 50,
   grain: 0,
   grainSize: 2,
   grainRoughness: 50,
@@ -131,6 +133,8 @@ export function blendPresetAdjustments(
   if (presetAdj.vignetteMidpoint !== undefined) result.vignetteMidpoint = lerp(baseAdj.vignetteMidpoint, presetAdj.vignetteMidpoint);
   if (presetAdj.sharpening !== undefined) result.sharpening = lerp(baseAdj.sharpening, presetAdj.sharpening);
   if (presetAdj.noiseReduction !== undefined) result.noiseReduction = lerp(baseAdj.noiseReduction, presetAdj.noiseReduction);
+  if (presetAdj.colorNoiseReduction !== undefined) result.colorNoiseReduction = lerp(baseAdj.colorNoiseReduction ?? 0, presetAdj.colorNoiseReduction);
+  if (presetAdj.noiseDetail !== undefined) result.noiseDetail = lerp(baseAdj.noiseDetail ?? 50, presetAdj.noiseDetail);
   if (presetAdj.grain !== undefined) result.grain = lerp(baseAdj.grain, presetAdj.grain);
   if (presetAdj.grainSize !== undefined) result.grainSize = lerp(baseAdj.grainSize, presetAdj.grainSize);
   if (presetAdj.grainRoughness !== undefined) result.grainRoughness = lerp(baseAdj.grainRoughness, presetAdj.grainRoughness);

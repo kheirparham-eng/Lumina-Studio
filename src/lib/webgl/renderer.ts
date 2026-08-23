@@ -400,6 +400,8 @@ export class WebGLPhotoRenderer {
     gl.uniform1f(gl.getUniformLocation(program, 'u_chromaticAberration'), adj.chromaticAberration ?? 0);
     gl.uniform1f(gl.getUniformLocation(program, 'u_sharpening'), adj.sharpening);
     gl.uniform1f(gl.getUniformLocation(program, 'u_noiseReduction'), adj.noiseReduction || 0);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_colorNoiseReduction'), adj.colorNoiseReduction || 0);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_noiseDetail'), adj.noiseDetail ?? 50);
 
     // Mask Uniforms
     const mask = adj.mask;

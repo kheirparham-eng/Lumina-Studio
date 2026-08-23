@@ -112,7 +112,9 @@ export interface PhotoAdjustments {
   vignette: number; // -100 to +100
   vignetteMidpoint: number; // 0 to 100
   sharpening: number; // 0 to 100
-  noiseReduction: number; // 0 to 100
+  noiseReduction: number; // 0 to 100 (AI High-ISO Luminance Denoise)
+  colorNoiseReduction?: number; // 0 to 100 (Chroma Sensor Denoise)
+  noiseDetail?: number; // 0 to 100 (Edge/Detail Retention Threshold)
   grain: number; // 0 to 100 (Amount)
   grainSize: number; // 1 to 5
   grainRoughness: number; // 0 to 100

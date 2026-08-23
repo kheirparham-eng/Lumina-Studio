@@ -20,6 +20,8 @@ import {
   Activity,
   Focus,
   CircleDot,
+  Cpu,
+  Zap,
 } from 'lucide-react';
 
 interface RightSidebarProps {
@@ -427,7 +429,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           )}
         </div>
 
-        {/* 7. DETAIL */}
+        {/* 8. DETAIL & AI DENOISE */}
         <div className="rounded-2xl border border-white/10 bg-black/20 overflow-hidden backdrop-blur-md">
           <button
             onClick={() => togglePanel('detail')}
@@ -435,7 +437,12 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           >
             <div className="flex items-center gap-2">
               <Focus className="h-4 w-4 text-sky-400" />
-              <span className="text-xs font-extrabold uppercase tracking-wider">Detail</span>
+              <span className="text-xs font-extrabold uppercase tracking-wider">Detail & AI Denoise</span>
+              {((adjustments.noiseReduction ?? 0) > 0 || (adjustments.colorNoiseReduction ?? 0) > 0) && (
+                <span className="flex items-center gap-1 rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[9px] font-mono text-sky-300 ring-1 ring-sky-400/40 animate-pulse">
+                  <Cpu className="h-2.5 w-2.5" /> AI Denoise Active
+                </span>
+              )}
             </div>
             <ChevronDown
               className={`h-4 w-4 text-neutral-400 transition-transform duration-300 ${
@@ -445,23 +452,133 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           </button>
 
           {openPanels.detail && (
-            <div className="p-3 space-y-1 bg-black/30 border-t border-white/10">
-              <SliderInput
-                label="Sharpening"
-                value={adjustments.sharpening}
-                min={0}
-                max={100}
-                defaultValue={15}
-                onChange={(val) => updatePartial({ sharpening: val }, 'Sharpening')}
-              />
-              <SliderInput
-                label="Noise Reduction"
-                value={adjustments.noiseReduction ?? 0}
-                min={0}
-                max={100}
-                defaultValue={0}
-                onChange={(val) => updatePartial({ noiseReduction: val }, 'Noise Reduction')}
-              />
+            <div className="p-3 space-y-3 bg-black/30 border-t border-white/10">
+              {/* AI High-ISO Denoise Section */}
+              <div className="rounded-xl border border-sky-500/20 bg-sky-950/20 p-2.5 space-y-2 backdrop-blur-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-sky-300">
+                    <Sparkles className="h-3 w-3 text-sky-400 animate-pulse" />
+                    AI High-ISO Denoise (Kernel Filter)
+                  </div>
+                  {((adjustments.noiseReduction ?? 0) > 0 || (adjustments.colorNoiseReduction ?? 0) > 0) && (
+                    <button
+                      onClick={() =>
+                        updatePartial(
+                          {
+                            noiseReduction: 0,
+                            colorNoiseReduction: 0,
+                            noiseDetail: 50,
+                          },
+                          'Reset AI Denoise'
+                        )
+                      }
+                      className="text-[9px] font-mono text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+
+                {/* Quick High-ISO Profiles */}
+                <div className="grid grid-cols-4 gap-1 pt-0.5">
+                  <button
+                    onClick={() =>
+                      updatePartial(
+                        { noiseReduction: 15, colorNoiseReduction: 20, noiseDetail: 75 },
+                        'ISO 400-800 Denoise'
+                      )
+                    }
+                    className="rounded-lg border border-white/10 bg-black/40 px-1.5 py-1 text-[9px] font-mono font-medium text-neutral-300 hover:border-sky-400 hover:text-sky-300 transition-colors text-center cursor-pointer"
+                  >
+                    Low ISO
+                  </button>
+                  <button
+                    onClick={() =>
+                      updatePartial(
+                        { noiseReduction: 38, colorNoiseReduction: 45, noiseDetail: 55 },
+                        'ISO 1600-3200 Denoise'
+                      )
+                    }
+                    className="rounded-lg border border-white/10 bg-black/40 px-1.5 py-1 text-[9px] font-mono font-medium text-neutral-300 hover:border-sky-400 hover:text-sky-300 transition-colors text-center cursor-pointer"
+                  >
+                    Med ISO
+                  </button>
+                  <button
+                    onClick={() =>
+                      updatePartial(
+                        { noiseReduction: 68, colorNoiseReduction: 75, noiseDetail: 40 },
+                        'ISO 6400+ Denoise'
+                      )
+                    }
+                    className="rounded-lg border border-white/10 bg-black/40 px-1.5 py-1 text-[9px] font-mono font-medium text-neutral-300 hover:border-sky-400 hover:text-sky-300 transition-colors text-center cursor-pointer"
+                  >
+                    High ISO
+                  </button>
+                  <button
+                    onClick={() =>
+                      updatePartial(
+                        { noiseReduction: 88, colorNoiseReduction: 90, noiseDetail: 30 },
+                        'Extreme ISO 12800+ Denoise'
+                      )
+                    }
+                    className="rounded-lg border border-white/10 bg-black/40 px-1.5 py-1 text-[9px] font-mono font-medium text-neutral-300 hover:border-sky-400 hover:text-sky-300 transition-colors text-center cursor-pointer"
+                  >
+                    Extreme
+                  </button>
+                </div>
+
+                {/* Denoise Sliders */}
+                <SliderInput
+                  label="AI Noise Reduction"
+                  value={adjustments.noiseReduction ?? 0}
+                  min={0}
+                  max={100}
+                  defaultValue={0}
+                  trackGradient="linear-gradient(to right, #0369a1, #38bdf8)"
+                  onChange={(val) => updatePartial({ noiseReduction: val }, 'AI Noise Reduction')}
+                />
+
+                <SliderInput
+                  label="Color Noise (Chroma)"
+                  value={adjustments.colorNoiseReduction ?? 0}
+                  min={0}
+                  max={100}
+                  defaultValue={0}
+                  trackGradient="linear-gradient(to right, #818cf8, #c084fc)"
+                  onChange={(val) => updatePartial({ colorNoiseReduction: val }, 'Color Noise Reduction')}
+                />
+
+                <SliderInput
+                  label="Edge Detail Retention"
+                  value={adjustments.noiseDetail ?? 50}
+                  min={0}
+                  max={100}
+                  defaultValue={50}
+                  onChange={(val) => updatePartial({ noiseDetail: val }, 'Noise Detail Retention')}
+                />
+
+                <div className="flex items-center justify-between pt-1 text-[9px] text-neutral-400 font-mono">
+                  <span>WebGL Bilateral Kernel: 12-Tap</span>
+                  <span className="text-sky-400">
+                    {(adjustments.noiseReduction ?? 0) > 0 ? `${adjustments.noiseReduction}% Denoise` : 'Bypassed'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Capture Sharpening */}
+              <div className="rounded-xl border border-white/10 bg-black/20 p-2.5 space-y-2 backdrop-blur-md">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-300 block">
+                  Capture Sharpening
+                </span>
+                <SliderInput
+                  label="Sharpening Amount"
+                  value={adjustments.sharpening}
+                  min={0}
+                  max={100}
+                  defaultValue={15}
+                  onChange={(val) => updatePartial({ sharpening: val }, 'Sharpening')}
+                />
+              </div>
             </div>
           )}
         </div>
