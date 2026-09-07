@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ToneCurveState, CurvePoint } from '../types/editor';
 
 interface ToneCurvePanelProps {
@@ -71,46 +71,80 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const points = toneCurve[activeChannel] || [{ x: 0, y: 0 }, { x: 255, y: 255 }];
+  const points = [...(toneCurve[activeChannel] || [{ x: 0, y: 0 }, { x: 255, y: 255 }])].sort((a, b) => a.x - b.x);
+
+  const draggedPointIndexRef = useRef<number | null>(null);
+  draggedPointIndexRef.current = draggedPointIndex;
+  const pointsRef = useRef<CurvePoint[]>(points);
+  pointsRef.current = points;
+  const activeChannelRef = useRef<ChannelKey>(activeChannel);
+  activeChannelRef.current = activeChannel;
+  const toneCurveRef = useRef<ToneCurveState>(toneCurve);
+  toneCurveRef.current = toneCurve;
+  const justDraggedRef = useRef(false);
+
+  // Global window pointer listener while dragging points
+  useEffect(() => {
+    if (draggedPointIndex === null) return;
+
+    const onPointerMove = (e: PointerEvent) => {
+      const idx = draggedPointIndexRef.current;
+      if (idx === null || !svgRef.current) return;
+
+      justDraggedRef.current = true;
+      const rect = svgRef.current.getBoundingClientRect();
+      const nx = Math.max(0, Math.min(255, Math.round(((e.clientX - rect.left) / rect.width) * 255)));
+      const ny = Math.max(0, Math.min(255, Math.round((1 - (e.clientY - rect.top) / rect.height) * 255)));
+
+      const currentPoints = pointsRef.current;
+      const newPoints = [...currentPoints];
+
+      if (idx === 0) {
+        newPoints[0] = { x: 0, y: ny };
+      } else if (idx === currentPoints.length - 1) {
+        newPoints[currentPoints.length - 1] = { x: 255, y: ny };
+      } else {
+        const prevX = (currentPoints[idx - 1]?.x ?? 0) + 1;
+        const nextX = (currentPoints[idx + 1]?.x ?? 255) - 1;
+        const clampedX = Math.max(prevX, Math.min(nextX, nx));
+        newPoints[idx] = { x: clampedX, y: ny };
+      }
+
+      onChange({
+        ...toneCurveRef.current,
+        [activeChannelRef.current]: newPoints,
+      });
+    };
+
+    const onPointerUp = () => {
+      setDraggedPointIndex(null);
+      setTimeout(() => {
+        justDraggedRef.current = false;
+      }, 80);
+    };
+
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [draggedPointIndex, onChange]);
 
   const handleChannelSelect = (ch: ChannelKey) => {
     setActiveChannel(ch);
+    setHoveredPointIndex(null);
+    setDraggedPointIndex(null);
   };
 
   const handlePointerDownPoint = (index: number, e: React.PointerEvent) => {
     e.stopPropagation();
-    e.currentTarget.setPointerCapture(e.pointerId);
+    e.preventDefault();
     setDraggedPointIndex(index);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (draggedPointIndex === null || !svgRef.current) return;
-
-    const rect = svgRef.current.getBoundingClientRect();
-    const nx = Math.max(0, Math.min(255, Math.round(((e.clientX - rect.left) / rect.width) * 255)));
-    const ny = Math.max(0, Math.min(255, Math.round((1 - (e.clientY - rect.top) / rect.height) * 255)));
-
-    const newPoints = [...points];
-
-    if (draggedPointIndex === 0) {
-      newPoints[0] = { x: 0, y: ny };
-    } else if (draggedPointIndex === points.length - 1) {
-      newPoints[points.length - 1] = { x: 255, y: ny };
-    } else {
-      const prevX = points[draggedPointIndex - 1].x + 2;
-      const nextX = points[draggedPointIndex + 1].x - 2;
-      const clampedX = Math.max(prevX, Math.min(nextX, nx));
-      newPoints[draggedPointIndex] = { x: clampedX, y: ny };
-    }
-
-    onChange({
-      ...toneCurve,
-      [activeChannel]: newPoints,
-    });
-  };
-
-  const handlePointerUp = () => {
-    setDraggedPointIndex(null);
+    setHoveredPointIndex(index);
   };
 
   const handlePointContextMenu = (index: number, e: React.MouseEvent) => {
@@ -119,6 +153,8 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
     if (points.length <= 2) return;
     if (index === 0 || index === points.length - 1) return;
     const newPoints = points.filter((_, i) => i !== index);
+    setHoveredPointIndex(null);
+    setDraggedPointIndex(null);
     onChange({
       ...toneCurve,
       [activeChannel]: newPoints,
@@ -126,12 +162,12 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
   };
 
   const handleSvgClick = (e: React.MouseEvent) => {
-    if (draggedPointIndex !== null || !svgRef.current) return;
+    if (justDraggedRef.current || draggedPointIndex !== null || !svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const cx = Math.max(0, Math.min(255, Math.round(((e.clientX - rect.left) / rect.width) * 255)));
     const cy = Math.max(0, Math.min(255, Math.round((1 - (e.clientY - rect.top) / rect.height) * 255)));
 
-    const near = points.some((p) => Math.hypot(p.x - cx, p.y - cy) < 15);
+    const near = points.some((p) => Math.hypot(p.x - cx, p.y - cy) < 18);
     if (near) return;
 
     const newPoints = [...points, { x: cx, y: cy }].sort((a, b) => a.x - b.x);
@@ -142,14 +178,15 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
   };
 
   const handleResetChannel = () => {
+    setHoveredPointIndex(null);
+    setDraggedPointIndex(null);
     onChange({
       ...toneCurve,
       [activeChannel]: [{ x: 0, y: 0 }, { x: 255, y: 255 }],
     });
   };
 
-  const sortedPoints = [...points].sort((a, b) => a.x - b.x);
-  const pathD = getSmoothSplinePath(sortedPoints, 200, 200);
+  const pathD = getSmoothSplinePath(points, 200, 200);
 
   const getChannelColor = (ch: ChannelKey) => {
     switch (ch) {
@@ -168,9 +205,9 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
 
   const activePoint =
     draggedPointIndex !== null
-      ? sortedPoints[draggedPointIndex]
+      ? points[draggedPointIndex]
       : hoveredPointIndex !== null
-      ? sortedPoints[hoveredPointIndex]
+      ? points[hoveredPointIndex]
       : null;
 
   return (
@@ -222,8 +259,6 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
           ref={svgRef}
           viewBox="0 0 200 200"
           onClick={handleSvgClick}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
           className="h-48 w-48 touch-none cursor-crosshair rounded-xl bg-slate-950/80 border border-white/10 select-none shadow-2xl"
         >
           {/* Grid Lines */}
@@ -251,26 +286,59 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
           />
 
           {/* Control Points */}
-          {sortedPoints.map((p, idx) => {
+          {points.map((p, idx) => {
             const px = (p.x / 255) * 200;
             const py = 200 - (p.y / 255) * 200;
             const isDragging = draggedPointIndex === idx;
+            const isHovered = hoveredPointIndex === idx;
 
             return (
-              <circle
-                key={idx}
-                cx={px}
-                cy={py}
-                r={isDragging ? 7 : 5}
-                fill="#0f172a"
-                stroke={strokeColor}
-                strokeWidth={isDragging ? 3.5 : 2.5}
+              <g
+                key={`${activeChannel}-${idx}`}
+                className="cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => handlePointerDownPoint(idx, e)}
                 onMouseEnter={() => setHoveredPointIndex(idx)}
-                onMouseLeave={() => setHoveredPointIndex(null)}
+                onMouseLeave={() => {
+                  if (draggedPointIndex === null) setHoveredPointIndex(null);
+                }}
                 onContextMenu={(e) => handlePointContextMenu(idx, e)}
-                className="cursor-pointer transition-transform duration-100 hover:scale-125"
-              />
+              >
+                {/* Large invisible hit area (28px) so mouse pointer or touch never slips */}
+                <circle
+                  cx={px}
+                  cy={py}
+                  r={14}
+                  fill="transparent"
+                  className="cursor-pointer"
+                />
+
+                {/* Smooth halo on hover/drag - pure SVG geometry, perfectly centered, no transform jitter */}
+                {(isHovered || isDragging) && (
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={isDragging ? 11 : 9}
+                    fill={strokeColor}
+                    opacity={isDragging ? 0.35 : 0.22}
+                    className="pointer-events-none transition-all duration-150"
+                  />
+                )}
+
+                {/* Visible core point - perfectly centered without CSS transform displacement */}
+                <circle
+                  cx={px}
+                  cy={py}
+                  r={isDragging ? 6.5 : isHovered ? 5.5 : 4}
+                  fill="#0b0f19"
+                  stroke={strokeColor}
+                  strokeWidth={isDragging ? 3 : isHovered ? 2.5 : 2}
+                  className="pointer-events-none transition-all duration-100"
+                  style={{
+                    filter: isHovered || isDragging ? `drop-shadow(0 0 5px ${strokeColor})` : undefined,
+                  }}
+                />
+              </g>
             );
           })}
         </svg>

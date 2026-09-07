@@ -124,7 +124,7 @@ export const InteractiveMaskOverlay: React.FC<InteractiveMaskOverlayProps> = ({
               stroke="#ffffff"
               strokeWidth="2.5"
               onPointerDown={(e) => handlePointerDown('radial-center', e)}
-              className="cursor-move hover:scale-125 transition-transform"
+              className="cursor-move hover:scale-125 transition-transform [transform-box:fill-box] [transform-origin:center]"
             />
 
             {/* Radius X Handle (Right) */}
@@ -136,7 +136,7 @@ export const InteractiveMaskOverlay: React.FC<InteractiveMaskOverlayProps> = ({
               stroke="#ffffff"
               strokeWidth="2"
               onPointerDown={(e) => handlePointerDown('radial-radiusX', e)}
-              className="cursor-ew-resize hover:scale-125 transition-transform"
+              className="cursor-ew-resize hover:scale-125 transition-transform [transform-box:fill-box] [transform-origin:center]"
             />
 
             {/* Radius Y Handle (Bottom) */}
@@ -148,7 +148,7 @@ export const InteractiveMaskOverlay: React.FC<InteractiveMaskOverlayProps> = ({
               stroke="#ffffff"
               strokeWidth="2"
               onPointerDown={(e) => handlePointerDown('radial-radiusY', e)}
-              className="cursor-ns-resize hover:scale-125 transition-transform"
+              className="cursor-ns-resize hover:scale-125 transition-transform [transform-box:fill-box] [transform-origin:center]"
             />
           </g>
         )}
@@ -198,7 +198,7 @@ export const InteractiveMaskOverlay: React.FC<InteractiveMaskOverlayProps> = ({
               stroke="#ffffff"
               strokeWidth="2.5"
               onPointerDown={(e) => handlePointerDown('linear-start', e)}
-              className="cursor-move hover:scale-125 transition-transform"
+              className="cursor-move hover:scale-125 transition-transform [transform-box:fill-box] [transform-origin:center]"
             />
 
             {/* End Handle Dot */}
@@ -210,7 +210,7 @@ export const InteractiveMaskOverlay: React.FC<InteractiveMaskOverlayProps> = ({
               stroke="#ffffff"
               strokeWidth="2.5"
               onPointerDown={(e) => handlePointerDown('linear-end', e)}
-              className="cursor-move hover:scale-125 transition-transform"
+              className="cursor-move hover:scale-125 transition-transform [transform-box:fill-box] [transform-origin:center]"
             />
           </g>
         )}
