@@ -106,11 +106,6 @@ Includes authentic tonal profiles with a global **Preset Strength Blend Slider**
 
 ---
 
-### 🤖 8. Gemini AI Auto-Enhance & Preset Generator
-- **AI Tone Analysis**: Analyzes image histogram and lighting conditions to auto-balance exposure, contrast, and color balance intelligently.
-- **Custom AI Presets**: Describe desired visual moods to generate custom non-destructive presets.
-
----
 
 ## ⌨️ Keyboard Shortcuts
 
