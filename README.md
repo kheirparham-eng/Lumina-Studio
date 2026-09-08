@@ -161,22 +161,6 @@ Includes authentic tonal profiles with a global **Preset Strength Blend Slider**
 
 ---
 
-## 🌐 Deploying to GitHub Pages
-
-This repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically builds and deploys **Lumina Studio** to GitHub Pages on every push to `main` or `master`.
-
-### Enable GitHub Pages:
-1. Go to your repository settings: `https://github.com/kheirparham-eng/Lumina-Studio/settings/pages`
-2. Under **Build and deployment** ➔ **Source**, select **GitHub Actions**.
-3. Push your latest code:
-   ```bash
-   git add .
-   git commit -m "Update Lumina Studio"
-   git push origin main
-   ```
-
----
-
 ## 📜 License
 
 Distributed under the **Apache 2.0 License**. See [`LICENSE`](LICENSE) for details.
