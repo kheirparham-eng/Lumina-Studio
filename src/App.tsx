@@ -526,11 +526,21 @@ export default function App() {
       </div>
 
       {/* Mobile Bottom Navigation Bar (< md screens) */}
-      <nav className="md:hidden flex h-14 w-full items-center justify-around bg-slate-950/90 border-t border-white/10 backdrop-blur-xl z-30 shrink-0 select-none">
+      <nav
+        className={`md:hidden flex h-14 w-full items-center justify-around backdrop-blur-xl z-30 shrink-0 select-none ${
+          themeMode === 'dark'
+            ? 'bg-slate-950/90 border-t border-white/10'
+            : 'bg-white/95 border-t border-slate-300 shadow-[0_-4px_16px_rgba(15,23,42,0.12)]'
+        }`}
+      >
         <button
           onClick={() => setActiveMobileTab('presets')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
-            activeMobileTab === 'presets' ? 'text-blue-400' : 'text-neutral-400 hover:text-white'
+            activeMobileTab === 'presets'
+              ? 'text-blue-500'
+              : themeMode === 'dark'
+                ? 'text-neutral-400 hover:text-white'
+                : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Sparkles className="h-4 w-4" />
@@ -540,7 +550,11 @@ export default function App() {
         <button
           onClick={() => setActiveMobileTab('canvas')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
-            activeMobileTab === 'canvas' ? 'text-blue-400' : 'text-neutral-400 hover:text-white'
+            activeMobileTab === 'canvas'
+              ? 'text-blue-500'
+              : themeMode === 'dark'
+                ? 'text-neutral-400 hover:text-white'
+                : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <ImageIcon className="h-4 w-4" />
@@ -550,7 +564,11 @@ export default function App() {
         <button
           onClick={() => setActiveMobileTab('adjustments')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
-            activeMobileTab === 'adjustments' ? 'text-blue-400' : 'text-neutral-400 hover:text-white'
+            activeMobileTab === 'adjustments'
+              ? 'text-blue-500'
+              : themeMode === 'dark'
+                ? 'text-neutral-400 hover:text-white'
+                : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Sliders className="h-4 w-4" />

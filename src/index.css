@@ -73,6 +73,60 @@
     --accent-glow: rgba(37, 99, 235, 0.3);
   }
 
+  .ios-light-mode .ios-glass-card,
+  .ios-light-mode .ios-glass-bar {
+    color: #1e293b;
+    box-shadow: 0 12px 32px rgba(30, 41, 59, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .ios-light-mode .ios-glass-card [class*="text-neutral-"],
+  .ios-light-mode .ios-glass-bar [class*="text-neutral-"] {
+    color: #475569;
+  }
+
+  .ios-light-mode .ios-glass-card h3,
+  .ios-light-mode .ios-glass-bar .ios-glass-button.text-white {
+    color: #1e293b;
+  }
+
+  .ios-light-mode .ios-glass-card [class*="bg-black/"],
+  .ios-light-mode .ios-glass-bar [class*="bg-black/"] {
+    background-color: rgba(255, 255, 255, 0.62);
+  }
+
+  .ios-light-mode .ios-glass-card [class*="border-white/"],
+  .ios-light-mode .ios-glass-bar [class*="border-white/"] {
+    border-color: rgba(71, 85, 105, 0.16);
+  }
+
+  .ios-light-mode .ios-glass-card input:not([type="range"]),
+  .ios-light-mode .ios-glass-card textarea,
+  .ios-light-mode .ios-glass-card select {
+    color: #1e293b;
+    background-color: rgba(255, 255, 255, 0.82);
+    border-color: rgba(71, 85, 105, 0.2);
+  }
+
+  .ios-light-mode .ios-glass-button {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(226, 232, 240, 0.78));
+    box-shadow: 0 3px 10px rgba(30, 41, 59, 0.12), inset 0 1px 0 #fff;
+  }
+
+  .ios-light-mode .ios-glass-button:hover {
+    background: linear-gradient(180deg, #fff, rgba(219, 234, 254, 0.92));
+    box-shadow: 0 5px 14px rgba(30, 41, 59, 0.16), 0 0 12px var(--accent-glow);
+  }
+
+  .ios-light-mode > nav {
+    background-color: rgba(248, 250, 252, 0.94);
+    border-color: rgba(71, 85, 105, 0.16);
+    box-shadow: 0 -6px 24px rgba(30, 41, 59, 0.08);
+  }
+
+  .ios-light-mode > nav button:not(.text-blue-400) {
+    color: #64748b;
+  }
+
   /* Glassmorphism Panel Base */
   .ios-glass-card {
     background: var(--glass-bg);
