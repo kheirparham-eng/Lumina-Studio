@@ -161,4 +161,4 @@ Includes authentic tonal profiles with a global **Preset Strength Blend Slider**
 
 ## 📜 License
 
-Distributed under the **MIT License**. See [`LICENSE.txt`](LICENSE.txt) for details.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
