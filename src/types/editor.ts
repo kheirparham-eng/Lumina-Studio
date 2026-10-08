@@ -81,6 +81,42 @@ export interface CropState {
   height: number; // 0 to 1 relative height
 }
 
+export interface CalibrationState {
+  shadowTint: number; // -100 to +100 (Green to Magenta)
+  redHue: number; // -100 to +100
+  redSaturation: number; // -100 to +100
+  greenHue: number; // -100 to +100
+  greenSaturation: number; // -100 to +100
+  blueHue: number; // -100 to +100
+  blueSaturation: number; // -100 to +100
+}
+
+export interface ParametricCurveState {
+  shadows: number; // -100 to +100
+  darks: number; // -100 to +100
+  lights: number; // -100 to +100
+  highlights: number; // -100 to +100
+  shadowSplit: number; // 0 to 100
+  midtoneSplit: number; // 0 to 100
+  highlightSplit: number; // 0 to 100
+}
+
+export interface DetailState {
+  sharpenRadius: number; // 0.5 to 3.0
+  sharpenDetail: number; // 0 to 100
+  sharpenEdgeMasking: number; // 0 to 100
+  luminanceNoiseContrast: number; // 0 to 100
+  colorNoiseDetail: number; // 0 to 100
+  colorNoiseSmoothness: number; // 0 to 100
+}
+
+export interface OpticsState {
+  defringePurple: number; // 0 to 100
+  defringeGreen: number; // 0 to 100
+  distortion: number; // -100 to +100
+  lensProfileEnable: boolean;
+}
+
 export interface PhotoAdjustments {
   // Light
   exposure: number; // -5 to +5 EV
@@ -105,6 +141,12 @@ export interface PhotoAdjustments {
   // Tone Curve
   toneCurve: ToneCurveState;
 
+  // Parametric Curve (Lightroom 4-Zone curve)
+  parametricCurve?: ParametricCurveState;
+
+  // Camera Calibration (Lightroom Primaries & Shadow Tint)
+  calibration?: CalibrationState;
+
   // Effects & Detail
   clarity: number; // -100 to +100
   texture: number; // -100 to +100
@@ -119,6 +161,10 @@ export interface PhotoAdjustments {
   grainSize: number; // 1 to 5
   grainRoughness: number; // 0 to 100
   chromaticAberration: number; // 0 to 100
+
+  // Extended Detail & Optics
+  detailSettings?: DetailState;
+  optics?: OpticsState;
 
   // Local Selective Masking
   mask: MaskState;
@@ -135,22 +181,14 @@ export interface HistoryItem {
 }
 
 export type PresetCategory =
-  | 'Commercial & Studio Editorial'
-  | 'Fine Art Architecture & Urban'
-  | 'Professional Landscape & Nature'
-  | 'Night & High-ISO Street Photography'
-  | 'Classic Analog Film Emulations'
-  | 'Food & Product Photography'
-  | 'Cinematic & Film'
-  | 'Subject-Focused'
-  | 'Vintage & Analog Film'
-  | 'Modern Cinematic Tones'
-  | 'Portrait & Skin Retouching'
-  | 'Nature & Landscape'
-  | 'B&W Fine Art'
-  | 'Social & Lifestyle'
+  | 'Lightroom XMP Presets'
+  | 'Lightroom Classic (.lrtemplate)'
+  | 'Imported XMP'
+  | 'Imported LRTemplates'
+  | 'My Custom Presets'
   | 'Built-in'
-  | 'User';
+  | 'User'
+  | string;
 
 export interface Preset {
   id: string;
@@ -158,6 +196,8 @@ export interface Preset {
   category: PresetCategory;
   description?: string;
   thumbnailUrl?: string;
+  format?: 'xmp' | 'lrtemplate' | 'custom' | 'builtin';
+  rawSource?: string;
   adjustments: Partial<PhotoAdjustments>;
 }
 

@@ -53,6 +53,12 @@ uniform vec3 u_cgHighlights;
 uniform float u_cgBlending;   // 0-100
 uniform float u_cgBalance;    // -100 to 100
 
+// Camera Calibration (Red, Green, Blue Primaries & Shadow Tint)
+uniform vec2 u_calibRed;        // vec2(hue -100..100, sat -100..100)
+uniform vec2 u_calibGreen;      // vec2(hue -100..100, sat -100..100)
+uniform vec2 u_calibBlue;       // vec2(hue -100..100, sat -100..100)
+uniform float u_calibShadowTint;// -100..100
+
 // Effects & Details
 uniform float u_clarity;      // -100 to 100
 uniform float u_texture;      // -100 to 100
@@ -306,6 +312,46 @@ void main() {
     wbMult.b *= (1.0 + u_tint / 400.0);
 
     color *= wbMult;
+
+    // Camera Calibration (Shadow Tint & Primaries Shift)
+    if (u_calibShadowTint != 0.0) {
+        float shadowW = 1.0 - smoothstep(0.0, 0.45, dot(color, vec3(0.299, 0.587, 0.114)));
+        float st = u_calibShadowTint / 200.0;
+        color.g -= shadowW * (st * 0.4);
+        color.r += shadowW * (st * 0.2);
+        color.b += shadowW * (st * 0.2);
+    }
+
+    if (length(u_calibRed) > 0.001 || length(u_calibGreen) > 0.001 || length(u_calibBlue) > 0.001) {
+        vec3 origCol = color;
+        float curLum = dot(color, vec3(0.299, 0.587, 0.114));
+
+        // Red Primary Shift
+        float rHue = u_calibRed.x / 100.0;
+        float rSat = 1.0 + u_calibRed.y / 100.0;
+        float rDom = max(0.0, origCol.r - max(origCol.g, origCol.b));
+        color.g += rDom * max(0.0, rHue) * 0.55;
+        color.b += rDom * max(0.0, -rHue) * 0.55;
+        color.r = mix(curLum, color.r, rSat);
+
+        // Green Primary Shift
+        float gHue = u_calibGreen.x / 100.0;
+        float gSat = 1.0 + u_calibGreen.y / 100.0;
+        float gDom = max(0.0, origCol.g - max(origCol.r, origCol.b));
+        color.r += gDom * max(0.0, gHue) * 0.55;
+        color.b += gDom * max(0.0, -gHue) * 0.55;
+        color.g = mix(curLum, color.g, gSat);
+
+        // Blue Primary Shift
+        float bHue = u_calibBlue.x / 100.0;
+        float bSat = 1.0 + u_calibBlue.y / 100.0;
+        float bDom = max(0.0, origCol.b - max(origCol.r, origCol.g));
+        color.g += bDom * max(0.0, -bHue) * 0.55;
+        color.r += bDom * max(0.0, bHue) * 0.55;
+        color.b = mix(curLum, color.b, bSat);
+
+        color = clamp(color, 0.0, 1.0);
+    }
 
     // 2. Exposure (2^EV scale)
     color *= pow(2.0, u_exposure);

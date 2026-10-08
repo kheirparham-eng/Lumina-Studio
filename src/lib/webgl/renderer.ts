@@ -1,5 +1,5 @@
 import { VERTEX_SHADER, FRAGMENT_SHADER } from './shaders';
-import { PhotoAdjustments, HistogramData, CurvePoint, ToneCurveState } from '../../types/editor';
+import { PhotoAdjustments, HistogramData, CurvePoint, ToneCurveState, ParametricCurveState } from '../../types/editor';
 
 // Monotonic Cubic Spline Interpolation for Tone Curves
 function createSplineTable(points: CurvePoint[]): Uint8Array {
@@ -78,10 +78,39 @@ function createSplineTable(points: CurvePoint[]): Uint8Array {
   return table;
 }
 
-// Build 256x4 LUT image array (Master, Red, Green, Blue combined)
-function buildCurveLUT(toneCurve: ToneCurveState): Uint8Array {
+// Build 256x4 LUT image array (Master, Red, Green, Blue combined with Parametric Curve)
+function buildCurveLUT(toneCurve: ToneCurveState, pc?: ParametricCurveState): Uint8Array {
   const lut = new Uint8Array(256 * 4 * 4); // 256 width x 4 rows x RGBA
-  const masterTable = createSplineTable(toneCurve.master);
+  let masterTable = createSplineTable(toneCurve.master);
+
+  // Apply Lightroom 4-zone parametric curve if active
+  if (pc && (pc.shadows !== 0 || pc.darks !== 0 || pc.lights !== 0 || pc.highlights !== 0)) {
+    const sSplit = (pc.shadowSplit ?? 14) * 2.55;
+    const mSplit = (pc.midtoneSplit ?? 43) * 2.55;
+    const hSplit = (pc.highlightSplit ?? 75) * 2.55;
+    const blended = new Uint8Array(256);
+
+    for (let i = 0; i < 256; i++) {
+      const orig = masterTable[i];
+      let offset = 0;
+      if (i < sSplit) {
+        const t = 1.0 - i / Math.max(1, sSplit);
+        offset += (pc.shadows * 0.45) * t;
+      } else if (i < mSplit) {
+        const t = (i - sSplit) / Math.max(1, mSplit - sSplit);
+        offset += (pc.darks * 0.45) * Math.sin(t * Math.PI);
+      } else if (i < hSplit) {
+        const t = (i - mSplit) / Math.max(1, hSplit - mSplit);
+        offset += (pc.lights * 0.45) * Math.sin(t * Math.PI);
+      } else {
+        const t = (i - hSplit) / Math.max(1, 255 - hSplit);
+        offset += (pc.highlights * 0.45) * t;
+      }
+      blended[i] = Math.min(255, Math.max(0, Math.round(orig + offset)));
+    }
+    masterTable = blended;
+  }
+
   const redTable = createSplineTable(toneCurve.red);
   const greenTable = createSplineTable(toneCurve.green);
   const blueTable = createSplineTable(toneCurve.blue);
@@ -325,7 +354,7 @@ export class WebGLPhotoRenderer {
     gl.uniform1i(gl.getUniformLocation(program, 'u_image'), 0);
 
     // Build and Bind Tone Curve LUT Texture
-    const lutData = buildCurveLUT(adj.toneCurve);
+    const lutData = buildCurveLUT(adj.toneCurve, adj.parametricCurve);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this.curveTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -338,6 +367,13 @@ export class WebGLPhotoRenderer {
     // Pass Uniforms
     gl.uniform2f(gl.getUniformLocation(program, 'u_resolution'), this.canvas.width, this.canvas.height);
     gl.uniform2f(gl.getUniformLocation(program, 'u_textureSize'), this.imageWidth, this.imageHeight);
+
+    // Camera Calibration
+    const calib = adj.calibration;
+    gl.uniform2f(gl.getUniformLocation(program, 'u_calibRed'), calib?.redHue ?? 0, calib?.redSaturation ?? 0);
+    gl.uniform2f(gl.getUniformLocation(program, 'u_calibGreen'), calib?.greenHue ?? 0, calib?.greenSaturation ?? 0);
+    gl.uniform2f(gl.getUniformLocation(program, 'u_calibBlue'), calib?.blueHue ?? 0, calib?.blueSaturation ?? 0);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_calibShadowTint'), calib?.shadowTint ?? 0);
 
     // Geometry & Rotation
     const rad = (adj.crop.rotation * Math.PI) / 180;

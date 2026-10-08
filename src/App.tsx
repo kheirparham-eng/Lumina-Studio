@@ -17,6 +17,12 @@ import {
   BUILT_IN_PRESETS,
   blendPresetAdjustments,
 } from './lib/presets';
+import {
+  exportToXmp,
+  exportToLrtemplate,
+  downloadPresetFile,
+  loadPresetFiles,
+} from './lib/lightroomParser';
 import { SAMPLE_PHOTOS, SamplePhoto } from './lib/sampleImages';
 import { WebGLPhotoRenderer } from './lib/webgl/renderer';
 import { createDownsampledImage } from './lib/utils/downsample';
@@ -63,7 +69,17 @@ export default function App() {
       const saved = localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY);
       if (saved) {
         const custom: Preset[] = JSON.parse(saved);
-        return [...BUILT_IN_PRESETS, ...custom];
+        // Clean out legacy presets that do not match the new format
+        const validCustom = custom.filter(
+          (p) =>
+            !BUILT_IN_PRESETS.some((b) => b.id === p.id) &&
+            (p.category === 'User' ||
+              p.category === 'My Custom Presets' ||
+              p.format === 'xmp' ||
+              p.format === 'lrtemplate' ||
+              p.format === 'custom')
+        );
+        return [...BUILT_IN_PRESETS, ...validCustom];
       }
     } catch (e) {
       console.warn('Failed to parse custom presets:', e);
@@ -304,10 +320,11 @@ export default function App() {
 
   const handleSaveCustomPreset = (name: string) => {
     const newPreset: Preset = {
-      id: `user-preset-${Date.now()}`,
+      id: `custom-preset-${Date.now()}`,
       name,
-      category: 'User',
-      description: 'Custom user preset',
+      category: 'My Custom Presets',
+      description: 'Custom user preset created in Lumina Studio',
+      format: 'custom',
       adjustments: { ...adjustments },
     };
 
@@ -316,48 +333,94 @@ export default function App() {
     setActivePresetId(newPreset.id);
     setActivePresetObj(newPreset);
 
-    const userOnly = updatedPresets.filter((p) => p.category === 'User');
-    localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(userOnly));
+    const toSave = updatedPresets.filter((p) => !BUILT_IN_PRESETS.some((b) => b.id === p.id));
+    localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(toSave));
   };
 
   const handleDeleteCustomPreset = (id: string) => {
     const updatedPresets = presets.filter((p) => p.id !== id);
     setPresets(updatedPresets);
-    const userOnly = updatedPresets.filter((p) => p.category === 'User');
-    localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(userOnly));
+    const toSave = updatedPresets.filter((p) => !BUILT_IN_PRESETS.some((b) => b.id === p.id));
+    localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(toSave));
+
+    if (activePresetId === id) {
+      setActivePresetId('preset-original');
+      setActivePresetObj(null);
+    }
   };
 
-  const handleExportPresetJSON = () => {
-    const jsonStr = JSON.stringify(adjustments, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `lightroom_preset_${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const handleImportPresetFiles = async (files: FileList | File[]) => {
+    try {
+      const loaded = await loadPresetFiles(files);
+      if (loaded.length === 0) return;
 
-  const handleImportPresetJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+      const existingIds = new Set(presets.map((p) => p.id));
+      const newItems = loaded.filter((p) => !existingIds.has(p.id));
+      const updatedPresets = [...presets, ...newItems];
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const imported = JSON.parse(event.target?.result as string);
-        const merged: PhotoAdjustments = {
-          ...createDefaultAdjustments(),
-          ...imported,
-        };
-        setAdjustments(merged);
-        setBaseAdjustments(merged);
-        handleAdjustmentsChange(merged, `Imported JSON: ${file.name}`);
-      } catch (err) {
-        alert('Invalid preset JSON file format.');
+      setPresets(updatedPresets);
+
+      // Save custom / imported presets to storage
+      const toSave = updatedPresets.filter((p) => !BUILT_IN_PRESETS.some((b) => b.id === p.id));
+      localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(toSave));
+
+      // If single preset was dropped or selected, activate it immediately
+      if (loaded.length === 1) {
+        handleSelectPreset(loaded[0]);
+      } else {
+        handleAdjustmentsChange(adjustments, `Imported ${loaded.length} Lightroom presets`);
       }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      console.error('Error importing preset files:', err);
+    }
+  };
+
+  const handleExportXmp = (targetPreset?: Preset) => {
+    const presetToExport = targetPreset || activePresetObj;
+    const name = presetToExport ? presetToExport.name : 'Lumina_Studio_Preset';
+    const adjToExport: PhotoAdjustments = presetToExport
+      ? { ...createDefaultAdjustments(), ...presetToExport.adjustments }
+      : adjustments;
+    const xml = exportToXmp(name, adjToExport, presetToExport?.category || 'User');
+    const safeFilename = `${name.replace(/[^a-zA-Z0-9_-]/g, '_')}.xmp`;
+    downloadPresetFile(safeFilename, xml, 'application/xml');
+  };
+
+  const handleExportLrtemplate = (targetPreset?: Preset) => {
+    const presetToExport = targetPreset || activePresetObj;
+    const name = presetToExport ? presetToExport.name : 'Lumina_Studio_Preset';
+    const adjToExport: PhotoAdjustments = presetToExport
+      ? { ...createDefaultAdjustments(), ...presetToExport.adjustments }
+      : adjustments;
+    const lua = exportToLrtemplate(name, adjToExport, presetToExport?.category || 'User');
+    const safeFilename = `${name.replace(/[^a-zA-Z0-9_-]/g, '_')}.lrtemplate`;
+    downloadPresetFile(safeFilename, lua, 'text/plain');
+  };
+
+  const handleExportPresetJSON = (targetPreset?: Preset) => {
+    const presetToExport = targetPreset || activePresetObj;
+    const name = presetToExport ? presetToExport.name : 'Lumina_Studio_Preset';
+    const adjToExport = presetToExport ? presetToExport.adjustments : adjustments;
+    const jsonStr = JSON.stringify(
+      {
+        id: presetToExport?.id || `preset-${Date.now()}`,
+        name,
+        category: presetToExport?.category || 'User',
+        adjustments: adjToExport,
+      },
+      null,
+      2
+    );
+    const safeFilename = `${name.replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
+    downloadPresetFile(safeFilename, jsonStr, 'application/json');
+  };
+
+  const handleClearAllCustomPresets = () => {
+    setPresets(BUILT_IN_PRESETS);
+    localStorage.removeItem(CUSTOM_PRESETS_STORAGE_KEY);
+    setActivePresetId('preset-original');
+    setActivePresetObj(null);
+    handleAdjustmentsChange(createDefaultAdjustments(), 'Reset Preset Library');
   };
 
   // Keyboard Shortcuts
@@ -449,10 +512,13 @@ export default function App() {
             onPresetIntensityChange={handlePresetIntensityChange}
             presetThumbnails={presetThumbnails}
             onSelectPreset={handleSelectPreset}
-            onImportPresetJSON={handleImportPresetJSON}
-            onExportCurrentPresetJSON={handleExportPresetJSON}
+            onImportPresetFiles={handleImportPresetFiles}
+            onExportXmp={handleExportXmp}
+            onExportLrtemplate={handleExportLrtemplate}
+            onExportJson={handleExportPresetJSON}
             onSaveCustomPreset={handleSaveCustomPreset}
             onDeleteCustomPreset={handleDeleteCustomPreset}
+            onClearAllCustomPresets={handleClearAllCustomPresets}
             history={history}
             currentHistoryIndex={currentHistoryIndex}
             onSelectHistoryItem={(idx) => {

@@ -32,7 +32,7 @@ interface RightSidebarProps {
   onResetAll: () => void;
 }
 
-type PanelKey = 'light' | 'color' | 'hsl' | 'grading' | 'curve' | 'mask' | 'effects' | 'detail' | 'crop';
+type PanelKey = 'light' | 'color' | 'hsl' | 'grading' | 'curve' | 'mask' | 'effects' | 'detail' | 'calibration' | 'crop';
 
 export const RightSidebar: React.FC<RightSidebarProps> = ({
   adjustments,
@@ -50,6 +50,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
     mask: false,
     effects: false,
     detail: false,
+    calibration: false,
     crop: false,
   });
 
@@ -583,7 +584,238 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           )}
         </div>
 
-        {/* 7. CROP & GEOMETRY */}
+        {/* 7. CAMERA CALIBRATION (Lightroom Primaries & Shadow Tint) */}
+        <div className="rounded-2xl border border-white/10 bg-black/20 overflow-hidden backdrop-blur-md">
+          <button
+            onClick={() => togglePanel('calibration')}
+            className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-white/10 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-emerald-400" />
+              <span className="text-xs font-extrabold uppercase tracking-wider">Camera Calibration</span>
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 text-neutral-400 transition-transform duration-300 ${
+                openPanels.calibration ? 'rotate-180 text-emerald-400' : ''
+              }`}
+            />
+          </button>
+
+          {openPanels.calibration && (
+            <div className="p-3 bg-black/30 border-t border-white/10 space-y-3">
+              <p className="text-[10px] text-neutral-400">
+                Lightroom Camera Calibration primary color tuning and shadow tint matrix.
+              </p>
+
+              {/* Shadow Tint */}
+              <div className="space-y-1">
+                <SliderInput
+                  label="Shadow Tint"
+                  value={adjustments.calibration?.shadowTint ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  trackGradient="linear-gradient(to right, #22c55e, #ec4899)"
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          shadowTint: val,
+                        },
+                      },
+                      'Calibration Shadow Tint'
+                    )
+                  }
+                />
+              </div>
+
+              {/* Red Primary */}
+              <div className="rounded-xl border border-rose-500/20 bg-rose-950/20 p-2.5 space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-rose-400">Red Primary</div>
+                <SliderInput
+                  label="Red Hue"
+                  value={adjustments.calibration?.redHue ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  trackGradient="linear-gradient(to right, #ec4899, #f97316, #eab308)"
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          redHue: val,
+                        },
+                      },
+                      'Calibration Red Hue'
+                    )
+                  }
+                />
+                <SliderInput
+                  label="Red Saturation"
+                  value={adjustments.calibration?.redSaturation ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          redSaturation: val,
+                        },
+                      },
+                      'Calibration Red Saturation'
+                    )
+                  }
+                />
+              </div>
+
+              {/* Green Primary */}
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-2.5 space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Green Primary</div>
+                <SliderInput
+                  label="Green Hue"
+                  value={adjustments.calibration?.greenHue ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  trackGradient="linear-gradient(to right, #06b6d4, #22c55e, #eab308)"
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          greenHue: val,
+                        },
+                      },
+                      'Calibration Green Hue'
+                    )
+                  }
+                />
+                <SliderInput
+                  label="Green Saturation"
+                  value={adjustments.calibration?.greenSaturation ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          greenSaturation: val,
+                        },
+                      },
+                      'Calibration Green Saturation'
+                    )
+                  }
+                />
+              </div>
+
+              {/* Blue Primary */}
+              <div className="rounded-xl border border-blue-500/20 bg-blue-950/20 p-2.5 space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400">Blue Primary</div>
+                <SliderInput
+                  label="Blue Hue"
+                  value={adjustments.calibration?.blueHue ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  trackGradient="linear-gradient(to right, #06b6d4, #3b82f6, #a855f7)"
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          blueHue: val,
+                        },
+                      },
+                      'Calibration Blue Hue'
+                    )
+                  }
+                />
+                <SliderInput
+                  label="Blue Saturation"
+                  value={adjustments.calibration?.blueSaturation ?? 0}
+                  min={-100}
+                  max={100}
+                  defaultValue={0}
+                  onChange={(val) =>
+                    updatePartial(
+                      {
+                        calibration: {
+                          ...(adjustments.calibration ?? {
+                            shadowTint: 0,
+                            redHue: 0,
+                            redSaturation: 0,
+                            greenHue: 0,
+                            greenSaturation: 0,
+                            blueHue: 0,
+                            blueSaturation: 0,
+                          }),
+                          blueSaturation: val,
+                        },
+                      },
+                      'Calibration Blue Saturation'
+                    )
+                  }
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 8. CROP & GEOMETRY */}
         <div className="rounded-2xl border border-white/10 bg-black/20 overflow-hidden backdrop-blur-md">
           <button
             onClick={() => togglePanel('crop')}
