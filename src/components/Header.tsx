@@ -69,17 +69,17 @@ export const Header: React.FC<HeaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <header className="ios-glass-bar flex h-14 w-full items-center justify-between px-2 sm:px-4 select-none z-30 shrink-0 relative transition-colors duration-300 gap-2 overflow-x-auto no-scrollbar">
+    <header className="liquid-glass-bar flex h-14 w-full items-center justify-between px-2 sm:px-4 select-none z-30 shrink-0 relative transition-colors duration-300 gap-2 overflow-x-auto no-scrollbar">
       {/* App Branding & Open File */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 text-xs font-black text-white shadow-xl shadow-blue-500/40 border border-white/40 overflow-hidden shrink-0">
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-purple-600 to-cyan-400 text-xs font-black text-white shadow-lg shadow-purple-500/30 border border-white/50 overflow-hidden shrink-0">
             <span className="relative z-10 drop-shadow">Lr</span>
             <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
           </div>
           <div className="flex flex-col">
             <span className="font-black text-xs tracking-wider uppercase leading-none opacity-95">
-              Lumina <span className="text-blue-400 font-extrabold drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">Studio</span>
+              Lumina <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-300 to-cyan-400 font-extrabold drop-shadow-[0_0_10px_rgba(217,70,239,0.5)]">Studio</span>
             </span>
             <span className="hidden sm:inline text-[9px] font-mono opacity-60 tracking-tight">
               Pro Photo Editor
@@ -90,8 +90,8 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="hidden sm:block h-4 w-px bg-white/20 mx-0.5" />
 
         {/* Upload Button */}
-        <label className="ios-glass-button flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1.5 text-xs font-bold cursor-pointer text-white shadow-md active:scale-95 shrink-0">
-          <Upload className="h-3.5 w-3.5 text-blue-400 drop-shadow" />
+        <label className="liquid-glass-btn flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1.5 text-xs font-bold cursor-pointer text-white shadow-md active:scale-95 shrink-0 hover:border-fuchsia-400/40">
+          <Upload className="h-3.5 w-3.5 text-fuchsia-400 drop-shadow" />
           <span className="drop-shadow-sm text-[11px] sm:text-xs">Open</span>
           <input
             ref={fileInputRef}
@@ -106,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Center Controls: Undo/Redo, View Mode, Compare */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Undo / Redo / Revert */}
-        <div className="flex items-center rounded-full bg-black/20 border border-white/15 p-1 backdrop-blur-md shadow-inner">
+        <div className="liquid-glass-pill flex items-center rounded-full p-1 shadow-inner">
           <button
             onClick={onUndo}
             disabled={!canUndo}
@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onRevert}
             title="Revert to Original"
-            className="flex items-center gap-1 rounded-full px-2 sm:px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:bg-white/15 hover:text-blue-400 transition-all active:scale-95"
+            className="flex items-center gap-1 rounded-full px-2 sm:px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:bg-white/15 hover:text-fuchsia-400 transition-all active:scale-95"
           >
             <RotateCcw className="h-3 w-3" />
             <span className="hidden sm:inline">Revert</span>
@@ -135,13 +135,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Before / After View Mode Toggles */}
-        <div className="hidden md:flex items-center rounded-full bg-black/30 border border-white/20 p-1 backdrop-blur-xl shadow-inner">
+        <div className="hidden md:flex items-center rounded-full liquid-glass-pill p-1 shadow-inner">
           <button
             onClick={() => onChangeViewMode('single')}
             title="Single View"
             className={`rounded-full p-1.5 text-xs font-bold transition-all active:scale-90 ${
               viewMode === 'single'
-                ? 'ios-glossy-blue text-white font-extrabold shadow-lg shadow-blue-500/40'
+                ? 'liquid-glass-accent text-white font-extrabold shadow-lg shadow-fuchsia-500/40'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -152,7 +152,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Split-Screen Before / After"
             className={`rounded-full p-1.5 text-xs font-bold transition-all active:scale-90 ${
               viewMode === 'before-after-split'
-                ? 'ios-glossy-blue text-white font-extrabold shadow-lg shadow-blue-500/40'
+                ? 'liquid-glass-accent text-white font-extrabold shadow-lg shadow-fuchsia-500/40'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -163,7 +163,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Side-by-Side Before / After"
             className={`rounded-full p-1.5 text-xs font-bold transition-all active:scale-90 ${
               viewMode === 'before-after-side'
-                ? 'ios-glossy-blue text-white font-extrabold shadow-lg shadow-blue-500/40'
+                ? 'liquid-glass-accent text-white font-extrabold shadow-lg shadow-fuchsia-500/40'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -181,11 +181,11 @@ export const Header: React.FC<HeaderProps> = ({
           title="Hold to Compare Original (\)"
           className={`flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1.5 text-xs font-extrabold transition-all active:scale-95 shrink-0 ${
             isComparing
-              ? 'ios-glossy-blue text-white shadow-xl shadow-blue-500/50'
-              : 'ios-glass-button text-neutral-200 hover:text-white'
+              ? 'liquid-glass-accent text-white shadow-xl shadow-fuchsia-500/50'
+              : 'liquid-glass-btn text-neutral-200 hover:text-white'
           }`}
         >
-          <Eye className="h-3.5 w-3.5 text-blue-400 drop-shadow" />
+          <Eye className="h-3.5 w-3.5 text-fuchsia-400 drop-shadow" />
           <span className="hidden sm:inline">Compare</span>
         </button>
       </div>
@@ -193,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Controls: Theme Switcher, Zoom & Export */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* iOS Dark / Light Glass Switcher */}
-        <div className="flex items-center rounded-full bg-black/30 border border-white/20 p-1 backdrop-blur-xl shadow-inner">
+        <div className="liquid-glass-pill flex items-center rounded-full p-1 shadow-inner">
           <button
             onClick={onToggleThemeMode}
             title={themeMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -201,7 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {themeMode === 'dark' ? (
               <>
-                <Moon className="h-3.5 w-3.5 text-indigo-400 drop-shadow" />
+                <Moon className="h-3.5 w-3.5 text-purple-300 drop-shadow" />
                 <span className="hidden sm:inline text-neutral-200">Dark</span>
               </>
             ) : (
@@ -214,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Zoom Controls */}
-        <div className="hidden sm:flex items-center gap-1 rounded-full bg-black/30 border border-white/20 px-2.5 py-1 text-xs font-mono text-neutral-300 backdrop-blur-xl shadow-inner">
+        <div className="hidden sm:flex items-center gap-1 rounded-full liquid-glass-pill px-2.5 py-1 text-xs font-mono text-neutral-300 shadow-inner">
           <button
             onClick={() => onChangeZoom(Math.max(0.1, zoom - 0.25))}
             title="Zoom Out"
@@ -223,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
             <ZoomOut className="h-3.5 w-3.5" />
           </button>
 
-          <span className="w-10 text-center font-extrabold text-blue-400 drop-shadow">
+          <span className="w-10 text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-cyan-400 drop-shadow">
             {Math.round(zoom * 100)}%
           </span>
 
@@ -239,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Export Button */}
         <button
           onClick={onOpenExportModal}
-          className="ios-glossy-blue flex items-center gap-1.5 rounded-full text-white px-3 sm:px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0"
+          className="liquid-glass-accent flex items-center gap-1.5 rounded-full text-white px-3 sm:px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0 shadow-lg shadow-fuchsia-500/30"
         >
           <Download className="h-3.5 w-3.5 drop-shadow" />
           <span className="drop-shadow text-[11px] sm:text-xs">Export</span>

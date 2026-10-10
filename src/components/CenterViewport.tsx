@@ -400,19 +400,19 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
               e.stopPropagation();
               setIsDraggingSplit(true);
             }}
-            className="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 via-indigo-500 to-cyan-400 cursor-ew-resize z-20 shadow-2xl hover:w-1.5 transition-all"
+            className="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-fuchsia-400 via-purple-500 to-cyan-400 cursor-ew-resize z-20 shadow-2xl hover:w-1.5 transition-all"
             style={{ left: `${splitPos * 100}%` }}
           >
-            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-9 w-9 rounded-full bg-blue-600 border-2 border-white shadow-2xl flex items-center justify-center text-xs font-black text-white">
+            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-9 w-9 rounded-full liquid-glass-accent border-2 border-white/90 shadow-2xl flex items-center justify-center text-xs font-black text-white cursor-ew-resize">
               ↔
             </div>
           </div>
 
           {/* Badges */}
-          <span className="absolute bottom-4 left-4 z-10 rounded-full bg-black/60 border border-white/20 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-blue-300 font-bold shadow-lg">
+          <span className="absolute bottom-4 left-4 z-10 rounded-full liquid-glass-pill px-3 py-1 text-[10px] font-mono text-fuchsia-300 font-bold shadow-lg">
             BEFORE
           </span>
-          <span className="absolute bottom-4 right-4 z-10 rounded-full bg-black/60 border border-white/20 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-white font-bold shadow-lg">
+          <span className="absolute bottom-4 right-4 z-10 rounded-full liquid-glass-pill px-3 py-1 text-[10px] font-mono text-cyan-300 font-bold shadow-lg">
             AFTER
           </span>
         </div>
@@ -425,7 +425,7 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
           style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }}
         >
           <div className="relative">
-            <span className="absolute top-3 left-3 z-10 rounded-full bg-black/70 border border-white/20 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-blue-300 font-bold shadow-lg">
+            <span className="absolute top-3 left-3 z-10 rounded-full liquid-glass-pill px-3 py-1 text-[10px] font-mono text-fuchsia-300 font-bold shadow-lg">
               BEFORE
             </span>
             <canvas
@@ -435,7 +435,7 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
           </div>
 
           <div className="relative">
-            <span className="absolute top-3 left-3 z-10 rounded-full bg-black/70 border border-white/20 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-white font-bold shadow-lg">
+            <span className="absolute top-3 left-3 z-10 rounded-full liquid-glass-pill px-3 py-1 text-[10px] font-mono text-cyan-300 font-bold shadow-lg">
               AFTER
             </span>
             <canvas
@@ -460,33 +460,33 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
         />
       )}
 
-      {/* 🍎 FLOATING DYNAMIC iOS BOTTOM DOCK */}
+      {/* 🔮 FLOATING DYNAMIC LIQUID GLASS BOTTOM DOCK */}
       {imageSource && !isCropActive && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-2 ios-glass-dock animate-fade-in shadow-[0_25px_60px_rgba(0,0,0,0.6)] border border-white/30 backdrop-blur-3xl">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-2 liquid-glass-dock animate-fade-in shadow-[0_28px_70px_rgba(0,0,0,0.65)]">
           {/* Crop Tool Button */}
           <button
             onClick={() => onToggleCropActive && onToggleCropActive(!isCropActive)}
             title="Interactive Crop & Straighten Tool (C)"
             className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold transition-all active:scale-95 cursor-pointer ${
               isCropActive
-                ? 'ios-glossy-blue text-white shadow-lg shadow-blue-500/50 ring-2 ring-blue-400'
-                : 'ios-glass-button text-neutral-200 hover:text-white'
+                ? 'liquid-glass-accent text-white shadow-lg shadow-fuchsia-500/50 ring-2 ring-fuchsia-400'
+                : 'liquid-glass-btn text-neutral-200 hover:text-white'
             }`}
           >
-            <Crop className="h-3.5 w-3.5 text-blue-400 drop-shadow" />
+            <Crop className="h-3.5 w-3.5 text-fuchsia-400 drop-shadow" />
             <span className="drop-shadow">Crop</span>
           </button>
 
           <div className="h-4 w-px bg-white/20" />
 
           {/* View Modes */}
-          <div className="flex items-center gap-1 rounded-full bg-black/40 p-1 border border-white/20 shadow-inner">
+          <div className="flex items-center gap-1 rounded-full liquid-glass-pill p-1 shadow-inner">
             <button
               onClick={() => onViewModeChange && onViewModeChange('single')}
               title="Single View"
               className={`rounded-full p-2 text-xs transition-all active:scale-90 ${
                 viewMode === 'single'
-                  ? 'ios-glossy-blue text-white shadow-lg shadow-blue-500/50 font-extrabold'
+                  ? 'liquid-glass-accent text-white shadow-lg shadow-fuchsia-500/50 font-extrabold'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -497,7 +497,7 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
               title="Split View"
               className={`rounded-full p-2 text-xs transition-all active:scale-90 ${
                 viewMode === 'before-after-split'
-                  ? 'ios-glossy-blue text-white shadow-lg shadow-blue-500/50 font-extrabold'
+                  ? 'liquid-glass-accent text-white shadow-lg shadow-fuchsia-500/50 font-extrabold'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -508,7 +508,7 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
               title="Side-by-Side View"
               className={`rounded-full p-2 text-xs transition-all active:scale-90 ${
                 viewMode === 'before-after-side'
-                  ? 'ios-glossy-blue text-white shadow-lg shadow-blue-500/50 font-extrabold'
+                  ? 'liquid-glass-accent text-white shadow-lg shadow-fuchsia-500/50 font-extrabold'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -519,14 +519,14 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
           <div className="h-4 w-px bg-white/20" />
 
           {/* Quick Zoom Pill */}
-          <div className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 border border-white/20 text-xs font-mono shadow-inner">
+          <div className="flex items-center gap-1.5 rounded-full liquid-glass-pill px-3 py-1.5 text-xs font-mono shadow-inner">
             <button
               onClick={() => onZoomChange(Math.max(0.1, zoom - 0.25))}
               className="text-neutral-300 hover:text-white transition-colors active:scale-90 p-0.5"
             >
               <ZoomOut className="h-3.5 w-3.5" />
             </button>
-            <span className="w-10 text-center font-extrabold text-blue-400 drop-shadow">
+            <span className="w-10 text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-cyan-400 drop-shadow">
               {Math.round(zoom * 100)}%
             </span>
             <button
@@ -537,7 +537,7 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
             </button>
             <button
               onClick={() => onZoomChange(1.0)}
-              className="ml-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-extrabold uppercase text-neutral-200 hover:text-white border border-white/20 hover:bg-white/25 active:scale-95"
+              className="ml-1 rounded-full liquid-glass-btn px-2 py-0.5 text-[10px] font-extrabold uppercase text-neutral-200 hover:text-white active:scale-95"
             >
               Fit
             </button>
@@ -554,11 +554,11 @@ export const CenterViewport: React.FC<CenterViewportProps> = ({
             onTouchEnd={onCompareEnd}
             className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-extrabold transition-all active:scale-95 cursor-pointer ${
               isComparing
-                ? 'ios-glossy-blue text-white shadow-lg shadow-blue-500/50'
-                : 'ios-glass-button text-neutral-200 hover:text-white'
+                ? 'liquid-glass-accent text-white shadow-lg shadow-fuchsia-500/50'
+                : 'liquid-glass-btn text-neutral-200 hover:text-white'
             }`}
           >
-            <Eye className="h-3.5 w-3.5 text-blue-400 drop-shadow" />
+            <Eye className="h-3.5 w-3.5 text-fuchsia-400 drop-shadow" />
             <span className="drop-shadow">Hold Original</span>
           </button>
         </div>

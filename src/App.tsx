@@ -75,6 +75,8 @@ export default function App() {
             !BUILT_IN_PRESETS.some((b) => b.id === p.id) &&
             (p.category === 'User' ||
               p.category === 'My Custom Presets' ||
+              p.category === 'Imported XMP' ||
+              p.category === 'Imported LRTemplates' ||
               p.format === 'xmp' ||
               p.format === 'lrtemplate' ||
               p.format === 'custom')
@@ -469,10 +471,25 @@ export default function App() {
 
   return (
     <div
-      className={`flex h-screen w-screen flex-col overflow-hidden font-sans antialiased select-none ios-spring ${
-        themeMode === 'dark' ? 'ios-dark-mode bg-slate-950 text-neutral-100' : 'ios-light-mode bg-slate-100 text-slate-900'
+      className={`flex h-screen w-screen flex-col overflow-hidden font-sans antialiased select-none ios-spring relative ${
+        themeMode === 'dark' ? 'ios-dark-mode bg-[#070611] text-neutral-100' : 'ios-light-mode bg-[#f1f5f9] text-slate-900'
       }`}
     >
+      {/* Ambient Liquid Glass Aurora Caustics Background (Refracted through panels & docks) */}
+      {themeMode === 'dark' && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+          <div className="absolute -top-[12%] -left-[8%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-br from-fuchsia-600/20 via-purple-600/15 to-transparent blur-[120px] animate-aurora-1" />
+          <div className="absolute top-[28%] -right-[12%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-indigo-600/18 via-violet-600/15 to-transparent blur-[130px] animate-aurora-2" />
+          <div className="absolute -bottom-[15%] left-[25%] w-[55vw] h-[45vw] rounded-full bg-gradient-to-tr from-cyan-600/15 via-fuchsia-600/12 to-transparent blur-[130px] animate-aurora-3" />
+        </div>
+      )}
+      {themeMode === 'light' && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+          <div className="absolute -top-[10%] -left-[8%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-pink-300/25 via-purple-200/20 to-transparent blur-[90px]" />
+          <div className="absolute top-[25%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-blue-300/25 via-indigo-200/20 to-transparent blur-[90px]" />
+        </div>
+      )}
+
       {/* Top Header Navigation Bar */}
       <Header
         canUndo={currentHistoryIndex > 0}
@@ -497,7 +514,7 @@ export default function App() {
       />
 
       {/* Main Studio Workspace */}
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden relative z-10">
         {/* Left Sidebar (Presets & Library) */}
         <div className={`h-full ${activeMobileTab === 'presets' ? 'w-full flex' : 'hidden md:flex'} shrink-0 z-20`}>
           <LeftSidebar
@@ -593,17 +610,17 @@ export default function App() {
 
       {/* Mobile Bottom Navigation Bar (< md screens) */}
       <nav
-        className={`md:hidden flex h-14 w-full items-center justify-around backdrop-blur-xl z-30 shrink-0 select-none ${
+        className={`md:hidden flex h-14 w-full items-center justify-around backdrop-blur-2xl z-30 shrink-0 select-none liquid-glass-bar border-t ${
           themeMode === 'dark'
-            ? 'bg-slate-950/90 border-t border-white/10'
-            : 'bg-white/95 border-t border-slate-300 shadow-[0_-4px_16px_rgba(15,23,42,0.12)]'
+            ? 'border-white/10'
+            : 'border-slate-300 shadow-[0_-4px_16px_rgba(15,23,42,0.12)]'
         }`}
       >
         <button
           onClick={() => setActiveMobileTab('presets')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
             activeMobileTab === 'presets'
-              ? 'text-blue-500'
+              ? 'text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]'
               : themeMode === 'dark'
                 ? 'text-neutral-400 hover:text-white'
                 : 'text-slate-500 hover:text-slate-900'
@@ -617,7 +634,7 @@ export default function App() {
           onClick={() => setActiveMobileTab('canvas')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
             activeMobileTab === 'canvas'
-              ? 'text-blue-500'
+              ? 'text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]'
               : themeMode === 'dark'
                 ? 'text-neutral-400 hover:text-white'
                 : 'text-slate-500 hover:text-slate-900'
@@ -631,7 +648,7 @@ export default function App() {
           onClick={() => setActiveMobileTab('adjustments')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
             activeMobileTab === 'adjustments'
-              ? 'text-blue-500'
+              ? 'text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]'
               : themeMode === 'dark'
                 ? 'text-neutral-400 hover:text-white'
                 : 'text-slate-500 hover:text-slate-900'

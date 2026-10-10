@@ -60,10 +60,10 @@ const ColorWheel: React.FC<ColorWheelProps> = ({ title, value, onChange }) => {
   const thumbY = 50 + distPct * 50 * Math.sin(angleRad);
 
   return (
-    <div className="flex flex-col items-center rounded bg-[#1c1c1c] p-2 border border-[#2a2a2a]">
-      <div className="mb-1 flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-wider text-neutral-300">
+    <div className="flex flex-col items-center rounded-2xl bg-black/40 p-2.5 border border-white/10 shadow-inner backdrop-blur-md">
+      <div className="mb-1.5 flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-wider text-neutral-300">
         <span className="capitalize">{title}</span>
-        <span className="font-mono text-[10px] text-blue-400">
+        <span className="font-mono text-[10px] text-fuchsia-300">
           {value.hue}° / {value.saturation}%
         </span>
       </div>
@@ -73,7 +73,7 @@ const ColorWheel: React.FC<ColorWheelProps> = ({ title, value, onChange }) => {
         ref={wheelRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
-        className="relative h-24 w-24 cursor-crosshair rounded-full shadow-inner border border-[#333] overflow-hidden"
+        className="relative h-24 w-24 cursor-crosshair rounded-full shadow-inner border border-white/20 overflow-hidden"
         style={{
           background: `conic-gradient(
             from 0deg,
@@ -90,11 +90,11 @@ const ColorWheel: React.FC<ColorWheelProps> = ({ title, value, onChange }) => {
         />
 
         {/* Center Crosshair */}
-        <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-neutral-400/60" />
+        <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/40" />
 
         {/* Vector Thumb */}
         <div
-          className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-neutral-950 shadow-md transition-transform"
+          className="absolute h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-fuchsia-500 shadow-md shadow-fuchsia-500/50 transition-transform"
           style={{
             left: `${thumbX}%`,
             top: `${thumbY}%`,

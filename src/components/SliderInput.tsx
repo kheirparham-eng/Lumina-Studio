@@ -62,7 +62,7 @@ export const SliderInput: React.FC<SliderInputProps> = ({
     <div className="group mb-2.5 text-[11px] ios-spring">
       <div className="mb-1 flex items-center justify-between">
         <label className="flex items-center gap-1.5 font-medium text-neutral-300 group-hover:text-white transition-colors cursor-pointer select-none">
-          {icon && <span className="text-neutral-400 group-hover:text-blue-400 transition-colors">{icon}</span>}
+          {icon && <span className="text-neutral-400 group-hover:text-fuchsia-400 transition-colors">{icon}</span>}
           <span>{label}</span>
         </label>
 
@@ -77,15 +77,17 @@ export const SliderInput: React.FC<SliderInputProps> = ({
             onChange={handleInputChange}
             onBlur={handleInputBlur}
             onKeyDown={handleInputKeyDown}
-            className="w-14 rounded-md bg-black/40 px-1.5 py-0.5 text-right font-mono text-[11px] text-blue-400 border border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-inner"
+            className="w-14 rounded-full bg-black/60 px-2 py-0.5 text-right font-mono text-[11px] text-fuchsia-300 border border-fuchsia-500/60 focus:outline-none focus:ring-1 focus:ring-fuchsia-400 shadow-inner"
           />
         ) : (
           <button
             onClick={() => setIsEditing(true)}
             onDoubleClick={handleDoubleClick}
             title="Click to edit value, double-click to reset"
-            className={`font-mono text-[11px] px-1.5 py-0.5 rounded transition-all cursor-pointer hover:bg-white/10 ${
-              value !== defaultValue ? 'text-blue-400 font-bold bg-blue-500/10' : 'text-neutral-400'
+            className={`font-mono text-[11px] px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+              value !== defaultValue
+                ? 'text-fuchsia-300 font-extrabold bg-fuchsia-500/20 border border-fuchsia-500/40 shadow-sm'
+                : 'text-neutral-400 hover:text-white hover:bg-white/10'
             }`}
           >
             {value > 0 && defaultValue === 0 ? `+${value}` : value}
@@ -98,39 +100,39 @@ export const SliderInput: React.FC<SliderInputProps> = ({
         className="relative flex items-center h-5 py-1 cursor-pointer select-none"
         onDoubleClick={handleDoubleClick}
       >
-        {/* Sleek iOS Capsule Track */}
+        {/* Sleek Liquid Glass Capsule Track */}
         <div
-          className="h-2.5 w-full overflow-hidden rounded-full bg-black/50 border border-white/20 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] relative"
+          className="h-2.5 w-full overflow-hidden rounded-full bg-black/60 border border-white/20 shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.8),0_1px_1px_rgba(255,255,255,0.12)] relative"
           style={{ background: trackGradient || undefined }}
         >
           {/* Active fill indicator for centered zero sliders */}
           {!trackGradient && min < 0 && (
             <div
-              className="absolute top-0 bottom-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 rounded-full transition-all duration-75 shadow-[0_0_14px_rgba(59,130,246,0.7)]"
+              className="absolute top-0 bottom-0 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 rounded-full transition-all duration-75 shadow-[0_0_14px_rgba(217,70,239,0.7)]"
               style={{
                 left: `${Math.min(percent, zeroPercent)}%`,
                 width: `${Math.abs(percent - zeroPercent)}%`,
               }}
             >
               {/* Glossy top shine bar */}
-              <div className="absolute inset-x-0 top-0 h-1/2 bg-white/30 rounded-t-full pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 h-1/2 bg-white/35 rounded-t-full pointer-events-none" />
             </div>
           )}
 
           {!trackGradient && min >= 0 && (
             <div
-              className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 rounded-full transition-all duration-75 shadow-[0_0_14px_rgba(59,130,246,0.7)] relative overflow-hidden"
+              className="h-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 rounded-full transition-all duration-75 shadow-[0_0_14px_rgba(217,70,239,0.7)] relative overflow-hidden"
               style={{ width: `${percent}%` }}
             >
               {/* Glossy top shine bar */}
-              <div className="absolute inset-x-0 top-0 h-1/2 bg-white/30 rounded-t-full pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 h-1/2 bg-white/35 rounded-t-full pointer-events-none" />
             </div>
           )}
 
           {/* Zero mark notch line */}
           {min < 0 && (
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-white/60 z-10 shadow-[0_0_4px_rgba(255,255,255,0.8)]"
+              className="absolute top-0 bottom-0 w-0.5 bg-white/70 z-10 shadow-[0_0_4px_rgba(255,255,255,0.9)]"
               style={{ left: `${zeroPercent}%` }}
             />
           )}
@@ -147,13 +149,13 @@ export const SliderInput: React.FC<SliderInputProps> = ({
           className="absolute inset-0 h-full w-full opacity-0 cursor-ew-resize ios-slider z-20"
         />
 
-        {/* Custom Circular iOS Glass Thumb with Specular Highlight */}
+        {/* Custom Circular Liquid Glass Droplet Thumb with Specular Highlight */}
         <div
-          className="pointer-events-none absolute h-4.5 w-4.5 -translate-x-1/2 rounded-full border-1.5 border-white bg-gradient-to-b from-white via-slate-100 to-slate-300 shadow-[0_3px_10px_rgba(0,0,0,0.5),_inset_0_1.5px_1.5px_rgba(255,255,255,1),_0_0_10px_rgba(59,130,246,0.5)] transition-transform duration-100 group-hover:scale-125 group-active:scale-140 z-30"
+          className="pointer-events-none absolute h-4.5 w-4.5 -translate-x-1/2 rounded-full border border-white/95 bg-gradient-to-b from-white via-slate-100 to-slate-300 shadow-[0_3px_12px_rgba(0,0,0,0.6),_inset_0_1.5px_1.5px_rgba(255,255,255,1),_0_0_14px_rgba(217,70,239,0.65)] transition-transform duration-100 group-hover:scale-125 group-active:scale-140 z-30"
           style={{ left: `${percent}%` }}
         >
           {/* Specular Glint Spot */}
-          <div className="absolute top-0.5 left-1 h-1 w-1 rounded-full bg-white blur-[0.3px]" />
+          <div className="absolute top-0.5 left-1 h-1 w-1 rounded-full bg-white blur-[0.2px]" />
         </div>
       </div>
     </div>

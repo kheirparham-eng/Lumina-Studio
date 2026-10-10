@@ -63,11 +63,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   };
 
   return (
-    <aside className="ios-glass-card flex h-full w-full md:w-[320px] flex-col select-none z-20 shrink-0 transition-colors duration-300">
+    <aside className="liquid-glass-card flex h-full w-full md:w-[320px] flex-col select-none z-20 shrink-0 transition-colors duration-300">
       {/* Header with Global Reset */}
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-black/20">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-black/30 backdrop-blur-md">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-400 shadow-sm">
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-fuchsia-400 shadow-[0_0_12px_rgba(217,70,239,0.35)]">
             <Sliders className="h-3.5 w-3.5" />
           </div>
           <h3 className="font-extrabold text-xs uppercase tracking-wider text-white">Develop Controls</h3>
@@ -75,9 +75,9 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
         <button
           onClick={onResetAll}
-          className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/20 px-3 py-1 text-[10px] font-bold text-neutral-300 hover:bg-white/10 hover:text-blue-400 transition-all cursor-pointer active:scale-95 shadow-sm"
+          className="liquid-glass-btn flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95 shadow-sm"
         >
-          <RotateCcw className="h-3 w-3 text-blue-400" />
+          <RotateCcw className="h-3 w-3 text-fuchsia-400" />
           Reset All
         </button>
       </div>
@@ -86,18 +86,18 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
         
         {/* 1. LIGHT PANEL */}
-        <div className="rounded-2xl border border-white/10 bg-black/20 overflow-hidden backdrop-blur-md">
+        <div className="rounded-2xl border border-white/10 bg-black/30 overflow-hidden backdrop-blur-md">
           <button
             onClick={() => togglePanel('light')}
             className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-white/10 cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Sun className="h-4 w-4 text-blue-400" />
+              <Sun className="h-4 w-4 text-fuchsia-400" />
               <span className="text-xs font-extrabold uppercase tracking-wider">Light</span>
             </div>
             <ChevronDown
               className={`h-4 w-4 text-neutral-400 transition-transform duration-300 ${
-                openPanels.light ? 'rotate-180 text-blue-400' : ''
+                openPanels.light ? 'rotate-180 text-fuchsia-400' : ''
               }`}
             />
           </button>

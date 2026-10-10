@@ -181,6 +181,10 @@ export interface HistoryItem {
 }
 
 export type PresetCategory =
+  | 'Film'
+  | 'Cinematic'
+  | 'Studio'
+  | 'B&W'
   | 'Lightroom XMP Presets'
   | 'Lightroom Classic (.lrtemplate)'
   | 'Imported XMP'

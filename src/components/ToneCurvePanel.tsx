@@ -214,14 +214,14 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
     <div className="space-y-3">
       {/* Channel Toggles & Reset */}
       <div className="flex items-center justify-between">
-        <div className="flex rounded-full bg-black/40 p-0.5 border border-white/10 backdrop-blur-md">
+        <div className="liquid-glass-pill flex rounded-full p-0.5">
           {(['master', 'red', 'green', 'blue'] as ChannelKey[]).map((ch) => (
             <button
               key={ch}
               onClick={() => handleChannelSelect(ch)}
               className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
                 activeChannel === ch
-                  ? 'bg-white/20 text-white shadow-md'
+                  ? 'liquid-glass-accent text-white shadow-md'
                   : 'text-neutral-400 hover:text-white'
               }`}
               style={{
@@ -235,7 +235,7 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
 
         <button
           onClick={handleResetChannel}
-          className="text-[10px] font-mono font-bold text-neutral-400 hover:text-blue-400 transition-colors cursor-pointer"
+          className="text-[10px] font-mono font-bold text-neutral-400 hover:text-fuchsia-400 transition-colors cursor-pointer"
         >
           Reset Curve
         </button>
@@ -245,7 +245,7 @@ export const ToneCurvePanel: React.FC<ToneCurvePanelProps> = ({ toneCurve, onCha
       <div className="flex items-center justify-between px-1 text-[10px] font-mono text-neutral-400">
         <span>Tonal Curve</span>
         {activePoint ? (
-          <span className="text-blue-400 font-extrabold">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-cyan-400 font-extrabold">
             In: {activePoint.x} &nbsp;|&nbsp; Out: {activePoint.y}
           </span>
         ) : (

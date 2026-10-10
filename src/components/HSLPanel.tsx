@@ -45,15 +45,15 @@ export const HSLPanel: React.FC<HSLPanelProps> = ({ hsl, onChange }) => {
   return (
     <div className="space-y-3">
       {/* Tab Selectors & Reset */}
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-2">
-        <div className="flex rounded bg-[#222222] p-0.5 border border-[#2a2a2a]">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2">
+        <div className="liquid-glass-pill flex rounded-full p-0.5">
           {(['hue', 'saturation', 'luminance'] as HSLTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === tab
-                  ? 'bg-blue-600 text-white shadow'
+                  ? 'liquid-glass-accent text-white shadow-md'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -64,7 +64,7 @@ export const HSLPanel: React.FC<HSLPanelProps> = ({ hsl, onChange }) => {
 
         <button
           onClick={handleResetHSL}
-          className="text-[10px] font-mono text-neutral-500 hover:text-blue-400 transition-colors cursor-pointer"
+          className="text-[10px] font-mono text-neutral-400 hover:text-fuchsia-400 transition-colors cursor-pointer"
         >
           Reset
         </button>
