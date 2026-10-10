@@ -33,12 +33,11 @@ import { RightSidebar } from './components/RightSidebar';
 import { CenterViewport } from './components/CenterViewport';
 import { ExportModal } from './components/ExportModal';
 import { Sparkles, Image as ImageIcon, Sliders } from 'lucide-react';
+import { createProceduralSampleCanvas } from './lib/utils/proceduralImage';
 
 const CUSTOM_PRESETS_STORAGE_KEY = 'lightroom_studio_custom_presets';
 
 export default function App() {
-  // Theme Mode State: iOS Dark Glass (Studio) vs iOS Light Glass (Daylight)
-  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
   const [activeMobileTab, setActiveMobileTab] = useState<'presets' | 'canvas' | 'adjustments'>('canvas');
 
   // Image Source State (Full-Res vs Downsampled Preview)
@@ -179,7 +178,35 @@ export default function App() {
       setZoom(1.0);
     };
     img.onerror = (err) => {
-      console.error('Failed to load image URL:', err);
+      console.warn('Failed to load image URL, initializing procedural fallback canvas:', err);
+      const fallbackCanvas = createProceduralSampleCanvas(1920, 1280);
+      setFullResImageSource(fallbackCanvas as unknown as HTMLImageElement);
+      const downsampled = createDownsampledImage(fallbackCanvas, 2048);
+      setPreviewImageSource(downsampled);
+
+      setImageInfo({
+        name: `${name} (Offline Canvas)`,
+        width: 1920,
+        height: 1280,
+        type: 'image/jpeg',
+      });
+
+      const defaultAdj = createDefaultAdjustments();
+      setBaseAdjustments(defaultAdj);
+      setAdjustments(defaultAdj);
+      setHistory([
+        {
+          id: `init-${Date.now()}`,
+          timestamp: Date.now(),
+          label: 'Imported Photo',
+          adjustments: defaultAdj,
+        },
+      ]);
+      setCurrentHistoryIndex(0);
+      setActivePresetId('preset-original');
+      setActivePresetObj(null);
+      setPresetIntensity(100);
+      setZoom(1.0);
     };
     img.src = url;
   };
@@ -471,24 +498,14 @@ export default function App() {
 
   return (
     <div
-      className={`flex h-screen w-screen flex-col overflow-hidden font-sans antialiased select-none ios-spring relative ${
-        themeMode === 'dark' ? 'ios-dark-mode bg-[#070611] text-neutral-100' : 'ios-light-mode bg-[#f1f5f9] text-slate-900'
-      }`}
+      className="flex h-screen w-screen flex-col overflow-hidden font-sans antialiased select-none ios-spring relative ios-dark-mode bg-[#070611] text-neutral-100"
     >
       {/* Ambient Liquid Glass Aurora Caustics Background (Refracted through panels & docks) */}
-      {themeMode === 'dark' && (
-        <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-          <div className="absolute -top-[12%] -left-[8%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-br from-fuchsia-600/20 via-purple-600/15 to-transparent blur-[120px] animate-aurora-1" />
-          <div className="absolute top-[28%] -right-[12%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-indigo-600/18 via-violet-600/15 to-transparent blur-[130px] animate-aurora-2" />
-          <div className="absolute -bottom-[15%] left-[25%] w-[55vw] h-[45vw] rounded-full bg-gradient-to-tr from-cyan-600/15 via-fuchsia-600/12 to-transparent blur-[130px] animate-aurora-3" />
-        </div>
-      )}
-      {themeMode === 'light' && (
-        <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-          <div className="absolute -top-[10%] -left-[8%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-pink-300/25 via-purple-200/20 to-transparent blur-[90px]" />
-          <div className="absolute top-[25%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-blue-300/25 via-indigo-200/20 to-transparent blur-[90px]" />
-        </div>
-      )}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+        <div className="absolute -top-[12%] -left-[8%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-br from-fuchsia-600/20 via-purple-600/15 to-transparent blur-[120px] animate-aurora-1" />
+        <div className="absolute top-[28%] -right-[12%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-indigo-600/18 via-violet-600/15 to-transparent blur-[130px] animate-aurora-2" />
+        <div className="absolute -bottom-[15%] left-[25%] w-[55vw] h-[45vw] rounded-full bg-gradient-to-tr from-cyan-600/15 via-fuchsia-600/12 to-transparent blur-[130px] animate-aurora-3" />
+      </div>
 
       {/* Top Header Navigation Bar */}
       <Header
@@ -509,8 +526,6 @@ export default function App() {
           if (e.target.files?.[0]) handleLoadFile(e.target.files[0]);
         }}
         onOpenExportModal={() => setIsExportModalOpen(true)}
-        themeMode={themeMode}
-        onToggleThemeMode={() => setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'))}
       />
 
       {/* Main Studio Workspace */}
@@ -610,20 +625,14 @@ export default function App() {
 
       {/* Mobile Bottom Navigation Bar (< md screens) */}
       <nav
-        className={`md:hidden flex h-14 w-full items-center justify-around backdrop-blur-2xl z-30 shrink-0 select-none liquid-glass-bar border-t ${
-          themeMode === 'dark'
-            ? 'border-white/10'
-            : 'border-slate-300 shadow-[0_-4px_16px_rgba(15,23,42,0.12)]'
-        }`}
+        className="md:hidden flex h-14 w-full items-center justify-around backdrop-blur-2xl z-30 shrink-0 select-none liquid-glass-bar border-t border-white/10"
       >
         <button
           onClick={() => setActiveMobileTab('presets')}
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
             activeMobileTab === 'presets'
               ? 'text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]'
-              : themeMode === 'dark'
-                ? 'text-neutral-400 hover:text-white'
-                : 'text-slate-500 hover:text-slate-900'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           <Sparkles className="h-4 w-4" />
@@ -635,9 +644,7 @@ export default function App() {
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
             activeMobileTab === 'canvas'
               ? 'text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]'
-              : themeMode === 'dark'
-                ? 'text-neutral-400 hover:text-white'
-                : 'text-slate-500 hover:text-slate-900'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           <ImageIcon className="h-4 w-4" />
@@ -649,9 +656,7 @@ export default function App() {
           className={`flex flex-col items-center justify-center gap-1 w-full h-full text-[10px] font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
             activeMobileTab === 'adjustments'
               ? 'text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]'
-              : themeMode === 'dark'
-                ? 'text-neutral-400 hover:text-white'
-                : 'text-slate-500 hover:text-slate-900'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           <Sliders className="h-4 w-4" />

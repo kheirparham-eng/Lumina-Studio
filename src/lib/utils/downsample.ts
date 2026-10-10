@@ -4,11 +4,11 @@
  * for live editing previews to ensure silky-smooth 60fps WebGL rendering.
  */
 export function createDownsampledImage(
-  sourceImg: HTMLImageElement,
+  sourceImg: HTMLImageElement | HTMLCanvasElement,
   maxDimension = 2048
 ): HTMLCanvasElement | HTMLImageElement {
-  const width = sourceImg.naturalWidth || sourceImg.width || 1920;
-  const height = sourceImg.naturalHeight || sourceImg.height || 1080;
+  const width = (sourceImg as HTMLImageElement).naturalWidth || sourceImg.width || 1920;
+  const height = (sourceImg as HTMLImageElement).naturalHeight || sourceImg.height || 1080;
 
   if (width <= maxDimension && height <= maxDimension) {
     return sourceImg;

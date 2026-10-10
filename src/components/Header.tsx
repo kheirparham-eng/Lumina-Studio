@@ -12,8 +12,6 @@ import {
   ZoomOut,
   Download,
   Eye,
-  Sun,
-  Moon,
   Sparkles,
 } from 'lucide-react';
 
@@ -37,9 +35,6 @@ interface HeaderProps {
 
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onOpenExportModal: () => void;
-
-  themeMode: 'dark' | 'light';
-  onToggleThemeMode: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -62,9 +57,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   onFileUpload,
   onOpenExportModal,
-
-  themeMode,
-  onToggleThemeMode,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -190,29 +182,8 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      {/* Right Controls: Theme Switcher, Zoom & Export */}
+      {/* Right Controls: Zoom & Export */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        {/* iOS Dark / Light Glass Switcher */}
-        <div className="liquid-glass-pill flex items-center rounded-full p-1 shadow-inner">
-          <button
-            onClick={onToggleThemeMode}
-            title={themeMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className="flex items-center gap-1 rounded-full px-2 sm:px-3 py-1 text-[11px] font-extrabold transition-all active:scale-95 cursor-pointer hover:bg-white/20"
-          >
-            {themeMode === 'dark' ? (
-              <>
-                <Moon className="h-3.5 w-3.5 text-purple-300 drop-shadow" />
-                <span className="hidden sm:inline text-neutral-200">Dark</span>
-              </>
-            ) : (
-              <>
-                <Sun className="h-3.5 w-3.5 text-amber-500 drop-shadow" />
-                <span className="hidden sm:inline text-neutral-800">Light</span>
-              </>
-            )}
-          </button>
-        </div>
-
         {/* Zoom Controls */}
         <div className="hidden sm:flex items-center gap-1 rounded-full liquid-glass-pill px-2.5 py-1 text-xs font-mono text-neutral-300 shadow-inner">
           <button

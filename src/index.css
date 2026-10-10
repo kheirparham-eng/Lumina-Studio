@@ -89,56 +89,6 @@
     --accent-cyan: rgba(6, 182, 212, 0.45);
   }
 
-  /* Liquid Glass Light Mode (Prismatic Daylight Crystal) */
-  .ios-light-mode {
-    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 250, 255, 0.75) 45%, rgba(240, 244, 255, 0.88) 100%);
-    --glass-bg-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 252, 255, 0.85) 45%, rgba(245, 248, 255, 0.95) 100%);
-    --glass-bg-active: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(243, 246, 255, 0.92) 45%, rgba(235, 242, 255, 0.98) 100%);
-    --glass-border: rgba(255, 255, 255, 0.85);
-    --glass-border-subtle: rgba(148, 163, 184, 0.25);
-    --glass-highlight: rgba(255, 255, 255, 0.95);
-    --glass-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.16), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 0 rgba(15, 23, 42, 0.08);
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --accent-glow: rgba(147, 51, 234, 0.35);
-    --accent-magenta: rgba(219, 39, 119, 0.4);
-    --accent-cyan: rgba(8, 145, 178, 0.35);
-  }
-
-  .ios-light-mode .ios-glass-card,
-  .ios-light-mode .ios-glass-bar {
-    color: #0f172a;
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  }
-
-  .ios-light-mode .ios-glass-card [class*="text-neutral-"],
-  .ios-light-mode .ios-glass-bar [class*="text-neutral-"] {
-    color: #475569;
-  }
-
-  .ios-light-mode .ios-glass-card h3,
-  .ios-light-mode .ios-glass-bar .ios-glass-button.text-white {
-    color: #0f172a;
-  }
-
-  .ios-light-mode .ios-glass-card [class*="bg-black/"],
-  .ios-light-mode .ios-glass-bar [class*="bg-black/"] {
-    background-color: rgba(255, 255, 255, 0.65);
-  }
-
-  .ios-light-mode .ios-glass-card [class*="border-white/"],
-  .ios-light-mode .ios-glass-bar [class*="border-white/"] {
-    border-color: rgba(148, 163, 184, 0.22);
-  }
-
-  .ios-light-mode .ios-glass-card input:not([type="range"]),
-  .ios-light-mode .ios-glass-card textarea,
-  .ios-light-mode .ios-glass-card select {
-    color: #0f172a;
-    background-color: rgba(255, 255, 255, 0.85);
-    border-color: rgba(148, 163, 184, 0.28);
-  }
-
   /* Liquid Glass Panel Base */
   .ios-glass-card,
   .liquid-glass-card {
@@ -170,13 +120,6 @@
     border: 1.5px solid rgba(255, 255, 255, 0.28);
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), 0 0 25px rgba(168, 85, 247, 0.25), inset 0 2px 1.5px var(--glass-highlight), inset 0 -1px 1.5px rgba(0, 0, 0, 0.4);
     border-radius: 9999px;
-  }
-
-  .ios-light-mode .liquid-glass-dock,
-  .ios-light-mode .ios-glass-dock {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(245, 248, 255, 0.88) 100%);
-    border: 1.5px solid rgba(255, 255, 255, 0.95);
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), inset 0 2px 1.5px #ffffff, inset 0 -1px 1px rgba(0, 0, 0, 0.08);
   }
 
   /* Standard Liquid Glass Button / Pill */
