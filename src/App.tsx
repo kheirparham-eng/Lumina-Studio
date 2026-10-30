@@ -118,6 +118,22 @@ export default function App() {
 
   // WebGL Renderer Reference
   const rendererRef = useRef<WebGLPhotoRenderer | null>(null);
+  const historyDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearHistoryDebounce = () => {
+    if (historyDebounceRef.current !== null) {
+      clearTimeout(historyDebounceRef.current);
+      historyDebounceRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (historyDebounceRef.current !== null) {
+        clearTimeout(historyDebounceRef.current);
+      }
+    };
+  }, []);
 
   // Generate Preset Thumbnails whenever previewImageSource or presets change
   useEffect(() => {
@@ -135,7 +151,6 @@ export default function App() {
 
   // Reference to current active Blob URL for cleanup
   const currentBlobUrlRef = useRef<string | null>(null);
-  const historyDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper to load image from URL
   const loadPhotoFromUrl = (url: string, name: string) => {
@@ -149,6 +164,7 @@ export default function App() {
       img.crossOrigin = 'anonymous';
     }
     img.onload = () => {
+      clearHistoryDebounce();
       setFullResImageSource(img);
       const downsampled = createDownsampledImage(img, 2048);
       setPreviewImageSource(downsampled);
@@ -179,6 +195,7 @@ export default function App() {
     };
     img.onerror = (err) => {
       console.warn('Failed to load image URL, initializing procedural fallback canvas:', err);
+      clearHistoryDebounce();
       const fallbackCanvas = createProceduralSampleCanvas(1920, 1280);
       setFullResImageSource(fallbackCanvas as unknown as HTMLImageElement);
       const downsampled = createDownsampledImage(fallbackCanvas, 2048);
@@ -221,6 +238,7 @@ export default function App() {
 
     const img = new Image();
     img.onload = () => {
+      clearHistoryDebounce();
       setFullResImageSource(img);
       const downsampled = createDownsampledImage(img, 2048);
       setPreviewImageSource(downsampled);
@@ -265,11 +283,10 @@ export default function App() {
       setAdjustments(newAdj);
 
       // Debounce history timeline entries so slider dragging doesn't flood history
-      if (historyDebounceRef.current) {
-        clearTimeout(historyDebounceRef.current);
-      }
+      clearHistoryDebounce();
 
       historyDebounceRef.current = setTimeout(() => {
+        historyDebounceRef.current = null;
         const newHistoryItem: HistoryItem = {
           id: `hist-${Date.now()}`,
           timestamp: Date.now(),
@@ -289,6 +306,7 @@ export default function App() {
 
   // Preset Selection & Blending Handlers
   const handleSelectPreset = (preset: Preset) => {
+    clearHistoryDebounce();
     setActivePresetId(preset.id);
     setActivePresetObj(preset.id === 'preset-original' ? null : preset);
     setPresetIntensity(100);
@@ -323,6 +341,15 @@ export default function App() {
 
   // Undo / Redo Handlers
   const handleUndo = () => {
+    const hasPendingChange = historyDebounceRef.current !== null;
+    clearHistoryDebounce();
+
+    if (hasPendingChange) {
+      setAdjustments(history[currentHistoryIndex].adjustments);
+      setBaseAdjustments(history[currentHistoryIndex].adjustments);
+      return;
+    }
+
     if (currentHistoryIndex > 0) {
       const nextIndex = currentHistoryIndex - 1;
       setCurrentHistoryIndex(nextIndex);
@@ -332,12 +359,13 @@ export default function App() {
   };
 
   const handleRedo = () => {
-    if (currentHistoryIndex < history.length - 1) {
-      const nextIndex = currentHistoryIndex + 1;
-      setCurrentHistoryIndex(nextIndex);
-      setAdjustments(history[nextIndex].adjustments);
-      setBaseAdjustments(history[nextIndex].adjustments);
-    }
+    if (currentHistoryIndex >= history.length - 1) return;
+
+    clearHistoryDebounce();
+    const nextIndex = currentHistoryIndex + 1;
+    setCurrentHistoryIndex(nextIndex);
+    setAdjustments(history[nextIndex].adjustments);
+    setBaseAdjustments(history[nextIndex].adjustments);
   };
 
   const handleRevertToOriginal = () => {
@@ -554,6 +582,7 @@ export default function App() {
             history={history}
             currentHistoryIndex={currentHistoryIndex}
             onSelectHistoryItem={(idx) => {
+              clearHistoryDebounce();
               setCurrentHistoryIndex(idx);
               setAdjustments(history[idx].adjustments);
               setBaseAdjustments(history[idx].adjustments);
