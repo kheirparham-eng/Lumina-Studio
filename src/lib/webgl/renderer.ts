@@ -176,6 +176,7 @@ export class WebGLPhotoRenderer {
   // Offscreen sampling canvas for histogram calculations
   private histogramCanvas: HTMLCanvasElement;
   private histogramCtx: CanvasRenderingContext2D | null = null;
+  private fallbackCtx: CanvasRenderingContext2D | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -193,7 +194,12 @@ export class WebGLPhotoRenderer {
     });
 
     if (!gl) {
-      console.warn('WebGL not supported, falling back');
+      this.fallbackCtx = this.canvas.getContext('2d');
+      if (!this.fallbackCtx) {
+        console.error('Neither WebGL nor 2D canvas rendering is available');
+        return;
+      }
+      console.warn('WebGL not supported; using 2D preview rendering');
       return;
     }
 
@@ -322,7 +328,7 @@ export class WebGLPhotoRenderer {
     const gl = this.gl;
     const program = this.program;
 
-    if (!gl || !program || !this.sourceImage) {
+    if (!this.sourceImage) {
       return {
         r: new Array(256).fill(0),
         g: new Array(256).fill(0),
@@ -332,6 +338,55 @@ export class WebGLPhotoRenderer {
         hasHighlightClipping: false,
         hasShadowClipping: false,
       };
+    }
+
+    if (!gl || !program) {
+      if (!this.fallbackCtx) {
+        return {
+          r: new Array(256).fill(0),
+          g: new Array(256).fill(0),
+          b: new Array(256).fill(0),
+          l: new Array(256).fill(0),
+          maxVal: 1,
+          hasHighlightClipping: false,
+          hasShadowClipping: false,
+        };
+      }
+
+      const ctx = this.fallbackCtx;
+      const { width, height } = this.canvas;
+      const cropX = adj.crop.x * this.imageWidth;
+      const cropY = adj.crop.y * this.imageHeight;
+      const cropWidth = adj.crop.width * this.imageWidth;
+      const cropHeight = adj.crop.height * this.imageHeight;
+      const radians = (adj.crop.rotation * Math.PI) / 180;
+      const rotatedWidth =
+        Math.abs(cropWidth * Math.cos(radians)) + Math.abs(cropHeight * Math.sin(radians));
+      const rotatedHeight =
+        Math.abs(cropWidth * Math.sin(radians)) + Math.abs(cropHeight * Math.cos(radians));
+      const scale = Math.min(width / rotatedWidth, height / rotatedHeight);
+      const drawWidth = cropWidth * scale;
+      const drawHeight = cropHeight * scale;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+      ctx.rotate(radians);
+      ctx.scale(adj.crop.flipH ? -1 : 1, adj.crop.flipV ? -1 : 1);
+      ctx.drawImage(
+        this.sourceImage,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+        -drawWidth / 2,
+        -drawHeight / 2,
+        drawWidth,
+        drawHeight
+      );
+      ctx.restore();
+
+      return this.calculateHistogram();
     }
 
     gl.useProgram(program);
